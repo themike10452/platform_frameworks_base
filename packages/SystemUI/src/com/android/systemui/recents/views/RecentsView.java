@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowInsets;
@@ -278,16 +279,38 @@ public class RecentsView extends FrameLayout implements TaskStackView.TaskStackV
                     MeasureSpec.makeMeasureSpec(searchBarSpaceBounds.height(), MeasureSpec.EXACTLY));
         }
 
+        boolean showClearAllButton = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.SHOW_CLEAR_RECENTS_BUTTON, 1) == 1;
+
         Rect taskStackBounds = new Rect();
         mConfig.getTaskStackBounds(width, height, mConfig.systemInsets.top,
                 mConfig.systemInsets.right, taskStackBounds);
 
-        if (mClearRecents != null) {
+        if (mClearRecents != null && showClearAllButton) {
+            int clearAllButtonLocation = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.CLEAR_RECENTS_BUTTON_LOCATION, Constants.DebugFlags.App.CLEAR_ALL_BUTTON_BOTTOM_LEFT);
             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)
                     mClearRecents.getLayoutParams();
             params.topMargin = taskStackBounds.top;
+            params.bottomMargin = mConfig.systemInsets.bottom;
             params.rightMargin = width - taskStackBounds.right;
+            switch (clearAllButtonLocation) {
+                case Constants.DebugFlags.App.CLEAR_ALL_BUTTON_TOP_LEFT:
+                    params.gravity = Gravity.TOP | Gravity.LEFT;
+                    break;
+                case Constants.DebugFlags.App.CLEAR_ALL_BUTTON_TOP_RIGHT:
+                    params.gravity = Gravity.TOP | Gravity.RIGHT;
+                    break;
+                case Constants.DebugFlags.App.CLEAR_ALL_BUTTON_BOTTOM_RIGHT:
+                    params.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+                    break;
+                default:
+                    params.gravity = Gravity.BOTTOM | Gravity.LEFT;
+                    break;
+            }
             mClearRecents.setLayoutParams(params);
+        } else {
+            mClearRecents.setVisibility(View.GONE);
         }
 
         // Measure each TaskStackView with the full width and height of the window since the 
