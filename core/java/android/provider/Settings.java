@@ -2993,6 +2993,14 @@ public final class Settings {
          */
         public static final String SAFE_HEADSET_VOLUME = "safe_headset_volume";
 
+        /* Network speed indicator
+         * 0 = disabled
+	     * 1 = show bits per second
+	     * 2 = show Bytes per second
+         * @hide
+         */
+        public static final String STATUS_BAR_TRAFFIC = "status_bar_traffic";
+
         /**
          * Volume key controls ringtone or media sound stream
          *
