@@ -321,6 +321,7 @@ public class NotificationPanelView extends PanelView implements
     public void onAttachedToWindow() {
         mSecureCameraLaunchManager.create();
         mSettingsObserver.observe();
+
     }
 
     @Override
@@ -652,7 +653,8 @@ public class NotificationPanelView extends PanelView implements
         boolean twoFingerQsEvent = mTwoFingerQsExpandPossible
                 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN
                 && event.getPointerCount() == 2);
-        boolean oneFingerQsOverride = event.getActionMasked() == MotionEvent.ACTION_DOWN
+        boolean oneFingerQsOverride = mOneFingerQuickSettingsIntercept
+                && event.getActionMasked() == MotionEvent.ACTION_DOWN
                 && shouldQuickSettingsIntercept(event.getX(), event.getY(), -1, false);
         if ((twoFingerQsEvent || oneFingerQsOverride)
                 && event.getY(event.getActionIndex()) < mStatusBarMinHeight) {
@@ -1229,7 +1231,7 @@ public class NotificationPanelView extends PanelView implements
         final float w = getMeasuredWidth();
         float region = (w * (1.f/3.f)); // TODO overlay region fraction?
         final boolean showQsOverride = isLayoutRtl() ? (x < region) : (w - region < x)
-                && mStatusBarState == StatusBarState.SHADE;
+                        && mStatusBarState == StatusBarState.SHADE;
 
         if (mQsExpanded) {
             return onHeader || (mScrollView.isScrolledToBottom() && yDiff < 0) && isInQsArea(x, y);
@@ -1892,6 +1894,8 @@ public class NotificationPanelView extends PanelView implements
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.DOUBLE_TAP_SLEEP_GESTURE), false, this);
             update();
         }
@@ -1913,6 +1917,8 @@ public class NotificationPanelView extends PanelView implements
 
         public void update() {
             ContentResolver resolver = mContext.getContentResolver();
+            mOneFingerQuickSettingsIntercept = Settings.System.getInt(
+                    resolver, Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN, 1) == 1;
             mDoubleTapToSleepEnabled = Settings.System.getInt(
                     resolver, Settings.System.DOUBLE_TAP_SLEEP_GESTURE, 1) == 1;
         }
