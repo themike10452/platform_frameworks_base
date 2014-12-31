@@ -134,12 +134,12 @@ public class BarTransitions {
                 mOpaque = 0xff0000ff;
                 mSemiTransparent = 0x7f0000ff;
                 mTransparent = 0x2f0000ff;
-                mWarning = 0xffff0000;
+                mWarning = 0x2f0000ff;
             } else {
                 mOpaque = res.getColor(R.color.system_bar_background_opaque);
                 mSemiTransparent = res.getColor(R.color.system_bar_background_semi_transparent);
                 mTransparent = res.getColor(R.color.system_bar_background_transparent);
-                mWarning = res.getColor(com.android.internal.R.color.battery_saver_mode_color);
+                mWarning = res.getColor(R.color.system_bar_background_transparent);
             }
             mGradient = res.getDrawable(gradientResourceId);
             mInterpolator = new LinearInterpolator();
