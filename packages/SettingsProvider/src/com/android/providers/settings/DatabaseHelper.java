@@ -1835,6 +1835,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         /************* The following are CM-12.0 changes ************/
 
+        if (upgradeVersion < 115) {
+            // Removal of back/recents is no longer supported
+            // due to pinned apps
+            db.beginTransaction();
+            try {
+                db.execSQL("DELETE FROM system WHERE name='"
+                        + Settings.System.NAV_BUTTONS + "'");
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+
+            upgradeVersion = 115;
+        }
+
         if (upgradeVersion < 116) {
             moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE,
                     new String[] { Settings.Secure.VOLUME_LINK_NOTIFICATION }, true);
