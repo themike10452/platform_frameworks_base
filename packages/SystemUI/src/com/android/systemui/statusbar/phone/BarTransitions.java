@@ -60,9 +60,7 @@ public class BarTransitions {
         mTag = "BarTransitions." + view.getClass().getSimpleName();
         mView = view;
         mBarBackground = new BarBackgroundDrawable(mView.getContext(), gradientResourceId);
-        if (HIGH_END) {
-            mView.setBackground(mBarBackground);
-        }
+        mView.setBackground(mBarBackground);
     }
 
     public int getMode() {
@@ -70,11 +68,6 @@ public class BarTransitions {
     }
 
     public void transitionTo(int mode, boolean animate) {
-        // low-end devices do not support translucent modes, fallback to opaque
-        if (!HIGH_END && (mode == MODE_SEMI_TRANSPARENT || mode == MODE_TRANSLUCENT
-                || mode == MODE_TRANSPARENT)) {
-            mode = MODE_OPAQUE;
-        }
         if (mMode == mode) return;
         int oldMode = mMode;
         mMode = mode;
@@ -84,9 +77,7 @@ public class BarTransitions {
     }
 
     protected void onTransition(int oldMode, int newMode, boolean animate) {
-        if (HIGH_END) {
-            applyModeBackground(oldMode, newMode, animate);
-        }
+        applyModeBackground(oldMode, newMode, animate);
     }
 
     protected void applyModeBackground(int oldMode, int newMode, boolean animate) {
