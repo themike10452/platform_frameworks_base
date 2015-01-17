@@ -71,7 +71,7 @@ public class RecentsView extends FrameLayout implements TaskStackView.TaskStackV
     ArrayList<TaskStack> mStacks;
     View mSearchBar;
     RecentsViewCallbacks mCb;
-    View mClearRecents;
+    View mClearRecents, mRecentsButton;
     boolean mAlreadyLaunchingTask;
 
     public RecentsView(Context context) {
@@ -286,11 +286,11 @@ public class RecentsView extends FrameLayout implements TaskStackView.TaskStackV
         mConfig.getTaskStackBounds(width, height, mConfig.systemInsets.top,
                 mConfig.systemInsets.right, taskStackBounds);
 
-        if (mClearRecents != null && showClearAllButton) {
+        if (mRecentsButton != null && showClearAllButton) {
             int clearAllButtonLocation = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.CLEAR_RECENTS_BUTTON_LOCATION, Constants.DebugFlags.App.CLEAR_ALL_BUTTON_BOTTOM_LEFT);
             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)
-                    mClearRecents.getLayoutParams();
+                    mRecentsButton.getLayoutParams();
             params.topMargin = taskStackBounds.top;
             params.bottomMargin = mConfig.systemInsets.bottom;
             params.rightMargin = width - taskStackBounds.right;
@@ -308,9 +308,9 @@ public class RecentsView extends FrameLayout implements TaskStackView.TaskStackV
                     params.gravity = Gravity.BOTTOM | Gravity.LEFT;
                     break;
             }
-            mClearRecents.setLayoutParams(params);
+            mRecentsButton.setLayoutParams(params);
         } else {
-            mClearRecents.setVisibility(View.GONE);
+            mRecentsButton.setVisibility(View.GONE);
         }
 
         // Measure each TaskStackView with the full width and height of the window since the 
@@ -338,6 +338,7 @@ public class RecentsView extends FrameLayout implements TaskStackView.TaskStackV
     @Override
     protected void onAttachedToWindow () {
         super.onAttachedToWindow();
+        mRecentsButton = ((View)getParent()).findViewById(R.id.button);
         mClearRecents = ((View)getParent()).findViewById(R.id.clear_recents);
         mClearRecents.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
