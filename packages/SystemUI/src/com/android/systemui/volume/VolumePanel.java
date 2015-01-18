@@ -263,6 +263,9 @@ public class VolumePanel extends Handler {
     private ToneGenerator mToneGenerators[];
     private Vibrator mVibrator;
 
+    // Indicates whether the panel is a child inside NotificationsTile view or not
+    private final boolean qsTileMode;
+
     private static AlertDialog sSafetyWarning;
     private static Object sSafetyWarningLock = new Object();
 
@@ -350,9 +353,14 @@ public class VolumePanel extends Handler {
     }
 
     public VolumePanel(Context context, ViewGroup parent, ZenModeController zenController) {
+        this(context,parent, zenController,false);
+    }
+
+    public VolumePanel(Context context, ViewGroup parent, ZenModeController zenController, boolean inQSTileMode) {
         mTag = String.format("%s.%08x", TAG, hashCode());
         mContext = context;
         mParent = parent;
+        qsTileMode = inQSTileMode;
         mZenController = zenController;
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mAccessibilityManager = (AccessibilityManager) context.getSystemService(
@@ -738,7 +746,7 @@ public class VolumePanel extends Handler {
                 StreamControl control = mStreamControls.get(streamType);
                 if (control != null && control.streamType != mActiveStreamType) {
                     if (control.group.getParent() == null)
-                    mSliderPanel.addView(control.group);
+                        mSliderPanel.addView(control.group);
                     control.group.setVisibility(View.VISIBLE);
                     control.expandPanel.setVisibility(View.GONE);
                     updateSlider(control);
@@ -1478,7 +1486,7 @@ public class VolumePanel extends Handler {
             }
 
             case MSG_TIMEOUT: {
-                if (isShowing()) {
+                if (isShowing() && !qsTileMode) {
                     hideVolumePanel();
                     if (mDialog != null) {
                         mView.animate().y(-mView.getHeight())
