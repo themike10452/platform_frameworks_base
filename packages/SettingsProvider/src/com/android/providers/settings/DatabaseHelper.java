@@ -1841,7 +1841,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             upgradeVersion = 116;
         }
 
-        if (upgradeVersion < 118) {
+        if (upgradeVersion < 117) {
             String[] qsTiles = new String[] {
                     Settings.Secure.QS_TILES,
                     Settings.Secure.QS_USE_MAIN_TILES
@@ -1849,6 +1849,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE,
                     qsTiles, true);
+            upgradeVersion = 117;
+        }
+
+        if (upgradeVersion < 118) {
+            String[] settingsToMove = new String[] {
+                    Settings.Secure.QS_SHOW_BRIGHTNESS_SLIDER,
+            };
+
+            moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE,
+                    settingsToMove, true);
             upgradeVersion = 118;
         }
 
