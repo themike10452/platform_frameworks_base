@@ -278,8 +278,6 @@ public class QSTileHost implements QSTile.Host {
                 return new HotspotTile(this);
             case QSConstants.TILE_NOTIFICATIONS:
                 return new NotificationsTile(this);
-            case QSConstants.TILE_DATA:
-                return new DataTile(this);
             default:
                 throw new IllegalArgumentException("Bad tile spec: " + tileSpec);
         }

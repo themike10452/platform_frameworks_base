@@ -21,7 +21,6 @@ import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
-import android.net.ConnectivityManager;
 import android.text.TextUtils;
 
 import java.util.Iterator;
@@ -49,7 +48,6 @@ public class QSUtils {
 
     private static void filterTiles(Context context) {
         if (!sAvailableTilesFiltered) {
-            boolean deviceSupportsMobile = deviceSupportsMobileData(context);
 
             // Tiles that need conditional filtering
             Iterator<String> iterator = QSConstants.TILES_AVAILABLE.iterator();
@@ -59,9 +57,6 @@ public class QSUtils {
                 switch (tileKey) {
                     case QSConstants.TILE_CELLULAR:
                     case QSConstants.TILE_HOTSPOT:
-                    case QSConstants.TILE_DATA:
-                        removeTile = !deviceSupportsMobile;
-                        break;
                     case QSConstants.TILE_FLASHLIGHT:
                         removeTile = !deviceSupportsFlashLight(context);
                         break;
@@ -77,12 +72,6 @@ public class QSUtils {
 
             sAvailableTilesFiltered = true;
         }
-    }
-
-    public static boolean deviceSupportsMobileData(Context ctx) {
-        ConnectivityManager cm = (ConnectivityManager) ctx.getSystemService(
-                Context.CONNECTIVITY_SERVICE);
-        return cm.isNetworkSupported(ConnectivityManager.TYPE_MOBILE);
     }
 
     public static boolean deviceSupportsBluetooth() {
