@@ -33,8 +33,10 @@ import com.android.internal.util.purity.QSConstants;
 import com.android.internal.util.purity.QSUtils;
 import com.android.systemui.R;
 import com.android.systemui.qs.QSTile;
+import com.android.systemui.qs.tiles.AdbOverNetworkTile;
 import com.android.systemui.qs.tiles.AirplaneModeTile;
 import com.android.systemui.qs.tiles.BluetoothTile;
+import com.android.systemui.qs.tiles.BrightnessTile;
 import com.android.systemui.qs.tiles.CastTile;
 import com.android.systemui.qs.tiles.CellularTile;
 import com.android.systemui.qs.tiles.ColorInversionTile;
@@ -48,6 +50,7 @@ import com.android.systemui.qs.tiles.LockscreenToggleTile;
 import com.android.systemui.qs.tiles.LteTile;
 import com.android.systemui.qs.tiles.NotificationsTile;
 import com.android.systemui.qs.tiles.RotationLockTile;
+import com.android.systemui.qs.tiles.ScreenTimeoutTile;
 import com.android.systemui.qs.tiles.WifiTile;
 import com.android.systemui.settings.CurrentUserTracker;
 import com.android.systemui.statusbar.policy.BluetoothController;
@@ -285,6 +288,12 @@ public class QSTileHost implements QSTile.Host {
                 return new LteTile(this);
             case QSConstants.TILE_EXPANDED_DESKTOP:
                 return new ExpandedDesktopTile(this);
+            case QSConstants.TILE_BRIGHTNESS:
+                return new BrightnessTile(this);
+            case QSConstants.TILE_ADB_NETWORK:
+                return new AdbOverNetworkTile(this);
+            case QSConstants.TILE_SCREEN_TIMEOUT:
+                return new ScreenTimeoutTile(this);
             default:
                 throw new IllegalArgumentException("Bad tile spec: " + tileSpec);
         }

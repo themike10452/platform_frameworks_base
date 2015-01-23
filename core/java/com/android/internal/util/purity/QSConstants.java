@@ -35,6 +35,9 @@ public class QSConstants {
     public static final String TILE_LOCKSCREEN = "lockscreen";
     public static final String TILE_LTE = "lte";
     public static final String TILE_EXPANDED_DESKTOP = "expanded_desktop";
+    public static final String TILE_BRIGHTNESS = "brightness";
+    public static final String TILE_ADB_NETWORK = "adb_network";
+    public static final String TILE_SCREEN_TIMEOUT = "screen_timeout";
 
     // Order matters
     protected static final ArrayList<String> TILES_DEFAULT = new ArrayList<String>();
@@ -60,5 +63,8 @@ public class QSConstants {
         TILES_AVAILABLE.add(TILE_LOCKSCREEN);
         TILES_AVAILABLE.add(TILE_LTE);
         TILES_AVAILABLE.add(TILE_EXPANDED_DESKTOP);
+        TILES_AVAILABLE.add(TILE_BRIGHTNESS);
+	TILES_AVAILABLE.add(TILE_ADB_NETWORK);
+	TILES_AVAILABLE.add(TILE_SCREEN_TIMEOUT);
     }
 }
