@@ -32,6 +32,10 @@
     <!-- Content description of the location tile in quick settings when on, high accuracy mode (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_quick_settings_location_high_accuracy">Location reporting: high accuracy mode.</string>
 
+    <string name="quick_settings_nfc">NFC</string>
+    <string name="quick_settings_nfc_off">NFC off</string>
+    <string name="quick_settings_lockscreen">Lock screen</string>
+
     <!-- QuickSettings: Location (On, low-power) [CHAR LIMIT=NONE] -->
     <string name="quick_settings_location_battery_saving_label">Battery saving</string>
     <!-- QuickSettings: Location (On, gps-only) [CHAR LIMIT=NONE] -->
