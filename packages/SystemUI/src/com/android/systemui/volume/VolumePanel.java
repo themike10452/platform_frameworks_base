@@ -1494,12 +1494,12 @@ public class VolumePanel extends Handler {
 
             case MSG_TIMEOUT: {
                 if (isShowing() && !qsTileMode) {
-                    hideVolumePanel();
                     if (mDialog != null) {
                         mView.animate().y(-mView.getHeight())
                                 .setDuration(ANIMATION_DURATION)
                                 .withEndAction(new Runnable() {
                             public void run() {
+                                hideVolumePanel();
                                 mDialog.dismiss();
                                 clearRemoteStreamController();
                                 mActiveStreamType = -1;
