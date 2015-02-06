@@ -25,4 +25,40 @@
     <string name="screenshot_delete_action">Izbriši</string>
     <string name="screenshot_delete_confirmation">Snimak zaslona izbrisan.</string>
 
+    <!-- Content description of the location tile in quick settings when on, battery saving mode (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="accessibility_quick_settings_location_battery_saving">Izvješćivanje o lokaciji: način štednje baterije.</string>
+    <!-- Content description of the location tile in quick settings when on, sensors only mode (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="accessibility_quick_settings_location_gps_only">Izvješćivanje o lokaciji: način senzora uređaja.</string>
+    <!-- Content description of the location tile in quick settings when on, high accuracy mode (not shown on the screen). [CHAR LIMIT=NONE] -->
+    <string name="accessibility_quick_settings_location_high_accuracy">Izvješćivanje o lokaciji: način visoke preciznosti.</string>
+
+    <!-- QuickSettings: Location detail panel title [CHAR LIMIT=NONE] -->
+    <string name="quick_settings_location_detail_title">Način lokacije</string>
+    <!-- QuickSettings: Location (On, low-power) [CHAR LIMIT=NONE] -->
+    <string name="quick_settings_location_battery_saving_label">Štednja baterije</string>
+    <!-- QuickSettings: Location (On, gps-only) [CHAR LIMIT=NONE] -->
+    <string name="quick_settings_location_gps_only_label">Samo uređaj</string>
+    <!-- QuickSettings: Location (On, high-accuracy) [CHAR LIMIT=NONE] -->
+    <string name="quick_settings_location_high_accuracy_label">Visoka preciznost</string>
+
+    <string name="quick_settings_lockscreen_label">Zaključani zaslon</string>
+    <string name="quick_settings_nfc_label">NFC</string>
+    <string name="quick_settings_lte_tile_title">LTE</string>
+
+    <string name="left_shortcut_hint">Prijeđite prstom udesno za %1$s</string>
+    <string name="right_shortcut_hint">Prijeđite prstom ulijevo %1$s</string>
+
+    <!-- Dialog title for navigation bar button selection -->
+    <string name="navbar_dialog_title">Odaberite</string>
+    <string name="navbar_home_button">Tipka za radnu površinu</string>
+    <string name="navbar_recent_button">Tipka nedavnih aplikacija</string>
+    <string name="navbar_search_button">Tipka za traženje</string>
+    <string name="navbar_back_button">Tipka za povratak unazad</string>
+    <string name="navbar_empty_button">Prazna tipka</string>
+    <string name="navbar_menu_conditional_button">Menu (autoSakrivanje) tipka</string>
+    <string name="navbar_menu_always_button">Menu (uvijekPrikaži) tipka</string>
+    <string name="navbar_menu_big_button">Menu tipka</string>
+
+    <string name="accessibility_dpad_left">Pokazivač lijevo</string>
+    <string name="accessibility_dpad_right">Pokazivač desno</string>
 </resources>
