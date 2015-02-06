@@ -34,4 +34,18 @@
 
     <string name="left_shortcut_hint">Swipe da destra per %1$s</string>
     <string name="right_shortcut_hint">Swipe da sinistra per %1$s</string>
+
+    <!-- Dialog title for navigation bar button selection -->
+    <string name="navbar_dialog_title">Azione da associare</string>
+    <string name="navbar_home_button">Pulsante Home</string>
+    <string name="navbar_recent_button">Pulsante Recenti</string>
+    <string name="navbar_search_button">Pulsante Cerca</string>
+    <string name="navbar_back_button">Pulsante Indietro</string>
+    <string name="navbar_empty_button">Lascia vuoto</string>
+    <string name="navbar_menu_conditional_button">Pulsante Menu (automatico)</string>
+    <string name="navbar_menu_always_button">Pulsante Menu (fisso)</string>
+    <string name="navbar_menu_big_button">Pulsante Menu</string>
+
+    <string name="accessibility_dpad_left">Cursore a sinistra</string>
+    <string name="accessibility_dpad_right">Cursore a destra</string>
 </resources>
