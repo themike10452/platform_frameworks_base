@@ -48,4 +48,27 @@
 
     <string name="accessibility_dpad_left">Cursore a sinistra</string>
     <string name="accessibility_dpad_right">Cursore a destra</string>
+
+    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permlab_accessTorchService">accesso al servizio torcia</string>
+    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permdesc_accessTorchService">Permetti ad un\'applicazione di accedere al servizio torcia. Normalmente non dovrebbe mai essere necessario.</string>
+
+    <!-- Navigation ring shortcuts -->
+    <string name="navigation_ring_title">Scorciatoie di avvio rapido</string>
+    <string name="navring_target_reset_message">Cancellare le impostazioni correnti e ripristinare le predefinite?</string>
+    <string name="navring_target_reset">Avvio rapido ripristinato</string>
+    <string name="navring_action_open_ime_switcher">Apri selettore metodo di immissione</string>
+    <string name="navring_action_kill_app">Termina applicazione</string>
+    <string name="navring_action_none">Nessuna</string>
+    <string name="navring_action_take_screenshot">Cattura schermata</string>
+    <string name="navring_action_ring_vibrate">Suoneria/Vibrazione</string>
+    <string name="navring_action_ring_silent">Suoneria/Silenzioso</string>
+    <string name="navring_action_ring_vibrate_silent">Suoneria/Vibrazione/Silenzioso</string>
+    <string name="navring_action_screen_off">Spegni schermo</string>
+    <string name="navring_action_torch">Commuta torcia</string>
+    <string name="navring_action_google_now">Google Now</string>
+    <string name="navring_choose_action_title">Choose action</string>
+    <string name="select_application">Scegli azione</string>
+    <string name="lockscreen_target_empty">Lascia vuoto</string>
 </resources>
