@@ -49,16 +49,40 @@
     <string name="right_shortcut_hint">Prijeđite prstom ulijevo %1$s</string>
 
     <!-- Dialog title for navigation bar button selection -->
-    <string name="navbar_dialog_title">Odaberite</string>
+    <string name="navbar_dialog_title">Odaberi</string>
     <string name="navbar_home_button">Tipka za radnu površinu</string>
     <string name="navbar_recent_button">Tipka nedavnih aplikacija</string>
     <string name="navbar_search_button">Tipka za traženje</string>
     <string name="navbar_back_button">Tipka za povratak unazad</string>
     <string name="navbar_empty_button">Prazna tipka</string>
-    <string name="navbar_menu_conditional_button">Menu (autoSakrivanje) tipka</string>
-    <string name="navbar_menu_always_button">Menu (uvijekPrikaži) tipka</string>
+    <string name="navbar_menu_conditional_button">Menu tipka (auto. skrivanje)</string>
+    <string name="navbar_menu_always_button">Menu tipka (uvijek prikaži)</string>
     <string name="navbar_menu_big_button">Menu tipka</string>
 
     <string name="accessibility_dpad_left">Pokazivač lijevo</string>
     <string name="accessibility_dpad_right">Pokazivač desno</string>
+	
+    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permlab_accessTorchService">Dozvoli pristup svjetiljci</string>
+    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permdesc_accessTorchService">Dozvoli aplikacijama pristup svjetiljci. Obično to nikada nije potrebno.</string>
+
+    <!-- Navigation ring shortcuts -->
+    <string name="navigation_ring_title">Brzi prečaci navigacijske trake</string>
+	<string name="navigation_ring_message">Dodirni ikonu za uređivanje kako bi otključao prečace navigacijske trake i omogućio izmjene.\n\nOdaberi polje kako bi promijenio njezin prečac.\n\nDodirni kvačicu kako bi spremio promjene, ili vraćanje za vraćanje zadanih postavki.</string>
+    <string name="navring_target_reset_message">Izbriši trenutne i vrati zadane postavke?</string>
+    <string name="navring_target_reset">Zadane postavke vraćene</string>
+    <string name="navring_action_open_ime_switcher">Otvori promjenu načina pisanja</string>
+    <string name="navring_action_kill_app">Prisilno zatvori aplikaciju</string>
+    <string name="navring_action_none">Ništa</string>
+    <string name="navring_action_take_screenshot">Snimak zaslona</string>
+    <string name="navring_action_ring_vibrate">Zvono/Vibracija</string>
+    <string name="navring_action_ring_silent">Zvono/Tišina</string>
+    <string name="navring_action_ring_vibrate_silent">Zvono/Vibracija/Tišina</string>
+    <string name="navring_action_screen_off">Ugasi zaslon</string>
+    <string name="navring_action_torch">Upali/ugasi svjetiljku</string>
+    <string name="navring_action_google_now">Google Now</string>
+    <string name="navring_choose_action_title">Odaberi</string>
+    <string name="select_application">Odaberi aplikaciju</string>
+    <string name="lockscreen_target_empty">Prazno</string>	
 </resources>
