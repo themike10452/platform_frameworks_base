@@ -424,9 +424,6 @@ public final class PowerManagerService extends SystemService
     // True if the battery level is currently considered low.
     private boolean mBatteryLevelLow;
 
-    // The reason of going to sleep
-    private int mGoToSleepReason = PowerManager.GO_TO_SLEEP_REASON_TIMEOUT;
-
     private final ArrayList<PowerManagerInternal.LowPowerModeListener> mLowPowerModeListeners
             = new ArrayList<PowerManagerInternal.LowPowerModeListener>();
 
@@ -1094,7 +1091,7 @@ public final class PowerManagerService extends SystemService
             mDirty |= DIRTY_WAKEFULNESS;
             mWakefulness = WAKEFULNESS_DOZING;
             mSandmanSummoned = true;
-            mGoToSleepReason = reason;
+            setInteractiveStateLocked(false, reason);
 
             // Report the number of wake locks that will be cleared by going to sleep.
             int numWakeLocksCleared = 0;
@@ -1171,7 +1168,7 @@ public final class PowerManagerService extends SystemService
 
             mDirty |= DIRTY_WAKEFULNESS;
             mWakefulness = WAKEFULNESS_ASLEEP;
-            setInteractiveStateLocked(false, mGoToSleepReason);
+            setInteractiveStateLocked(false, PowerManager.GO_TO_SLEEP_REASON_TIMEOUT);
         } finally {
             Trace.traceEnd(Trace.TRACE_TAG_POWER);
         }
