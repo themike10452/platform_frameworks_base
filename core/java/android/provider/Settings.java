@@ -5403,7 +5403,7 @@ public final class Settings {
          */
         public static final String PRIVACY_GUARD_DEFAULT = "privacy_guard_default";
 
-        /*
+        /**
          * String to contain power menu actions
          * @hide
          */
