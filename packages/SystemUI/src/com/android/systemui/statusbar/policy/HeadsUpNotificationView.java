@@ -53,6 +53,9 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
     private static final boolean SPEW = DEBUG;
     private static final String SETTING_HEADS_UP_SNOOZE_LENGTH_MS = "heads_up_snooze_length_ms";
 
+    public static final int DIRECTION_X = 0;
+    public static final int DIRECTION_Y = 1;
+
     Rect mTmpRect = new Rect();
     int[] mTmpTwoArray = new int[2];
 
@@ -388,7 +391,7 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
     @Override
     public void onChildDismissed(View v) {
         Log.v(TAG, "User swiped heads up to dismiss");
-        mBar.onHeadsUpDismissed();
+        mBar.onHeadsUpDismissed(DIRECTION_X);
     }
 
     @Override
@@ -473,6 +476,10 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
                         if (dY > 0) {
                             if (DEBUG_EDGE_SWIPE) Log.d(TAG, "found an open");
                             mBar.animateExpandNotificationsPanel();
+                        }
+                        if (dY < 0) {
+                            if (DEBUG_EDGE_SWIPE) Log.d(TAG, "found a close");
+                            mBar.onHeadsUpDismissed(DIRECTION_Y);
                         }
                         mConsuming = true;
                     }
