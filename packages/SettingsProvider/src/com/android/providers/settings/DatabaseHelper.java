@@ -70,7 +70,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // database gets upgraded properly. At a minimum, please confirm that 'upgradeVersion'
     // is properly propagated through your change.  Not doing so will result in a loss of user
     // settings.
-    private static final int DATABASE_VERSION = 120;
+    private static final int DATABASE_VERSION = 121;
 
     private Context mContext;
     private int mUserHandle;
@@ -1891,7 +1891,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String[] globalToSecure = new String[] { Settings.Secure.POWER_MENU_ACTIONS };
 
                 moveSettingsToNewTable(db, TABLE_GLOBAL, TABLE_SECURE, globalToSecure, true);
+            }
+
+            String[] systemToSecure = new String[] {
+            };
+            moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE, systemToSecure, true);
+
             upgradeVersion = 120;
+        }
+
+        if (upgradeVersion < 121) {
+            // Migrate from cm-12.0 if there is no entry from cm-11.0
+            db.beginTransaction();
+            SQLiteStatement stmt = null;
+            try {
+                stmt = db.compileStatement("INSERT OR IGNORE INTO secure(name,value)"
+                        + " VALUES(?,?);");
+                int quickPulldown = getIntValueFromSystem(db,
+                        Settings.System.STATUS_BAR_QUICK_QS_PULLDOWN,
+                        R.integer.def_qs_quick_pulldown);
+                loadSetting(stmt, Settings.System.QS_QUICK_PULLDOWN, quickPulldown);
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+                if (stmt != null) stmt.close();
+            }
+            upgradeVersion = 121;
         }
 
         // *** Remember to update DATABASE_VERSION above!
@@ -2348,6 +2373,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             loadIntegerSetting(stmt, Settings.System.POINTER_SPEED,
                     R.integer.def_pointer_speed);
+
+            loadIntegerSetting(stmt, Settings.System.QS_QUICK_PULLDOWN,
+                    R.integer.def_qs_quick_pulldown);
+
         } finally {
             if (stmt != null) stmt.close();
         }
