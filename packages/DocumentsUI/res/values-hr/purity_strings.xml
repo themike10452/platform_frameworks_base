@@ -19,29 +19,29 @@
     <string name="toast_success_delete">Datoteka izbrisana</string>
 
     <!-- Title of the Delete confirmation dialog -->
-    <string name="dialog_delete_confirm_title">Izbriši datoteke?</string>
+    <string name="dialog_delete_confirm_title">Izbriši datoteku?</string>
 
     <!-- Text shown in a toast when the user copies files -->
     <plurals name="files_copied">
         <item quantity="one">Datoteka je kopirana u međuspremnik</item>
-        <item quantity="other">I %d datoteke/a kopirano u međuspremnik</item>
+        <item quantity="other">%d datoteke/a kopirano u međuspremnik</item>
     </plurals>
 
     <!-- Text shown in a toast when the user pastes files -->
     <plurals name="files_pasted">
-        <item quantity="one">Kopirana datoteka je zalijepljena. Podaci će se osvježiti u pozadini</item>
-        <item quantity="other">I %d kopirane datoteke su zalijepljene. Podaci će se osvježiti u pozadini</item>
+        <item quantity="one">Datoteka je zalijepljena. Podaci će se osvježiti u pozadini</item>
+        <item quantity="other">%d datoteke su zalijepljene. Podaci će se osvježiti u pozadini</item>
     </plurals>
 
     <!-- Text show in the progress dialog while files are being copied -->
-    <string name="copy_in_progress">Kopiranje u tijeku\u2026</string>
+    <string name="copy_in_progress">Kopiranje...\u2026</string>
 
     <!-- Text show in the progress dialog while files are being deleted -->
-    <string name="delete_in_progress">Brisanje u tijeku\u2026</string>
+    <string name="delete_in_progress">Brisanje...\u2026</string>
 
     <plurals name="dialog_delete_confirm_message">
         <item quantity="one">Odabrana datoteka biti će izbrisana!</item>
-        <item quantity="other">I %d odabrane datoteke biti će izbrisane!</item>
+        <item quantity="other">%d odabrane datoteke biti će izbrisane!</item>
     </plurals>
 
     <string name="ok">U redu</string>
