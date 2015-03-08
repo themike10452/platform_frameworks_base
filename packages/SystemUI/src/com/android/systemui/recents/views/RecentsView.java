@@ -279,16 +279,16 @@ public class RecentsView extends FrameLayout implements TaskStackView.TaskStackV
                     MeasureSpec.makeMeasureSpec(searchBarSpaceBounds.height(), MeasureSpec.EXACTLY));
         }
 
-        boolean showClearAllButton = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.SHOW_CLEAR_RECENTS_BUTTON, 1) == 1;
+        boolean showClearAllButton = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.SHOW_CLEAR_RECENTS_BUTTON, 0, UserHandle.USER_CURRENT) != 0;
 
         Rect taskStackBounds = new Rect();
         mConfig.getTaskStackBounds(width, height, mConfig.systemInsets.top,
                 mConfig.systemInsets.right, taskStackBounds);
 
         if (mRecentsButton != null && showClearAllButton) {
-            int clearAllButtonLocation = Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.CLEAR_RECENTS_BUTTON_LOCATION, Constants.DebugFlags.App.CLEAR_ALL_BUTTON_BOTTOM_LEFT);
+            int clearAllButtonLocation = Settings.System.getIntForUser(mContext.getContentResolver(),
+                    Settings.System.CLEAR_RECENTS_BUTTON_LOCATION, Constants.DebugFlags.App.CLEAR_ALL_BUTTON_BOTTOM_LEFT, UserHandle.USER_CURRENT);
             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)
                     mRecentsButton.getLayoutParams();
             params.topMargin = taskStackBounds.top;
