@@ -16,6 +16,7 @@
 package android.transition;
 
 import android.graphics.Rect;
+import android.util.FloatMath;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;

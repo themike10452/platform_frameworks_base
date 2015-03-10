@@ -23,6 +23,7 @@ import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.util.AttributeSet;
+import android.util.FloatMath;
 import android.util.PathParser;
 
 /**
@@ -118,7 +119,7 @@ public class PatternPathMotion extends PathMotion {
         mTempMatrix.setTranslate(-startX, -startY);
         float dx = endX - startX;
         float dy = endY - startY;
-        float distance = (float) Math.hypot(dx, dy);
+        float distance = distance(dx, dy);
         float scale = 1 / distance;
         mTempMatrix.postScale(scale, scale);
         double angle = Math.atan2(dy, dx);
@@ -129,9 +130,9 @@ public class PatternPathMotion extends PathMotion {
 
     @Override
     public Path getPath(float startX, float startY, float endX, float endY) {
-        double dx = endX - startX;
-        double dy = endY - startY;
-        float length = (float) Math.hypot(dx, dy);
+        float dx = endX - startX;
+        float dy = endY - startY;
+        float length = distance(dx, dy);
         double angle = Math.atan2(dy, dx);
 
         mTempMatrix.setScale(length, length);
@@ -142,4 +143,7 @@ public class PatternPathMotion extends PathMotion {
         return path;
     }
 
+    private static float distance(float x, float y) {
+        return FloatMath.sqrt((x * x) + (y * y));
+    }
 }

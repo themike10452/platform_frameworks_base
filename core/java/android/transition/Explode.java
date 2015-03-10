@@ -22,6 +22,7 @@ import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.FloatMath;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -142,29 +143,32 @@ public class Explode extends Visibility {
 
         int centerX = bounds.centerX();
         int centerY = bounds.centerY();
-        double xVector = centerX - focalX;
-        double yVector = centerY - focalY;
+        float xVector = centerX - focalX;
+        float yVector = centerY - focalY;
 
         if (xVector == 0 && yVector == 0) {
             // Random direction when View is centered on focal View.
-            xVector = (Math.random() * 2) - 1;
-            yVector = (Math.random() * 2) - 1;
+            xVector = (float) (Math.random() * 2) - 1;
+            yVector = (float) (Math.random() * 2) - 1;
         }
-        double vectorSize = Math.hypot(xVector, yVector);
+        float vectorSize = calculateDistance(xVector, yVector);
         xVector /= vectorSize;
         yVector /= vectorSize;
 
-        double maxDistance =
+        float maxDistance =
                 calculateMaxDistance(sceneRoot, focalX - sceneRootX, focalY - sceneRootY);
 
-        outVector[0] = (int) Math.round(maxDistance * xVector);
-        outVector[1] = (int) Math.round(maxDistance * yVector);
+        outVector[0] = Math.round(maxDistance * xVector);
+        outVector[1] = Math.round(maxDistance * yVector);
     }
 
-    private static double calculateMaxDistance(View sceneRoot, int focalX, int focalY) {
+    private static float calculateMaxDistance(View sceneRoot, int focalX, int focalY) {
         int maxX = Math.max(focalX, sceneRoot.getWidth() - focalX);
         int maxY = Math.max(focalY, sceneRoot.getHeight() - focalY);
-        return Math.hypot(maxX, maxY);
+        return calculateDistance(maxX, maxY);
     }
 
+    private static float calculateDistance(float x, float y) {
+        return FloatMath.sqrt((x * x) + (y * y));
+    }
 }

@@ -415,9 +415,9 @@ public class KeySetManagerService {
         // Get the package's known keys and KeySets
         ArraySet<Long> deletableKeySets = getOriginalKeySetsByPackageNameLPr(packageName);
         ArraySet<Long> deletableKeys = new ArraySet<Long>();
-        final int origDksSize = deletableKeySets.size();
-        for (int i = 0; i < origDksSize; i++) {
-            ArraySet<Long> knownKeys = mKeySetMapping.get(deletableKeySets.valueAt(i));
+        ArraySet<Long> knownKeys = null;
+        for (Long ks : deletableKeySets) {
+            knownKeys = mKeySetMapping.get(ks);
             if (knownKeys != null) {
                 deletableKeys.addAll(knownKeys);
             }
@@ -430,9 +430,9 @@ public class KeySetManagerService {
             }
             ArraySet<Long> knownKeySets = getOriginalKeySetsByPackageNameLPr(pkgName);
             deletableKeySets.removeAll(knownKeySets);
-            final int kksSize = knownKeySets.size();
-            for (int i = 0; i < kksSize; i++) {
-                ArraySet<Long> knownKeys = mKeySetMapping.get(knownKeySets.valueAt(i));
+            knownKeys = new ArraySet<Long>();
+            for (Long ks : knownKeySets) {
+                knownKeys = mKeySetMapping.get(ks);
                 if (knownKeys != null) {
                     deletableKeys.removeAll(knownKeys);
                 }
@@ -441,22 +441,18 @@ public class KeySetManagerService {
 
         // The remaining keys and KeySets are not relied on by any other
         // application and so can be safely deleted.
-        final int dksSize = deletableKeySets.size();
-        for (int i = 0; i < dksSize; i++) {
-            Long ks = deletableKeySets.valueAt(i);
+        for (Long ks : deletableKeySets) {
             mKeySets.delete(ks);
             mKeySetMapping.delete(ks);
         }
-        final int dkSize = deletableKeys.size();
-        for (int i = 0; i < dkSize; i++) {
-            mPublicKeys.delete(deletableKeys.valueAt(i));
+        for (Long keyId : deletableKeys) {
+            mPublicKeys.delete(keyId);
         }
 
         // Now remove the deleted KeySets from each package's signingKeySets
         for (String pkgName : mPackages.keySet()) {
             PackageSetting p = mPackages.get(pkgName);
-            for (int i = 0; i < dksSize; i++) {
-                Long ks = deletableKeySets.valueAt(i);
+            for (Long ks : deletableKeySets) {
                 p.keySetData.removeSigningKeySet(ks);
             }
         }
