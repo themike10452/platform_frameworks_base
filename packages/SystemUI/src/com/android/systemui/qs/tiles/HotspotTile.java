@@ -17,6 +17,7 @@
 package com.android.systemui.qs.tiles;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
@@ -25,19 +26,28 @@ import com.android.systemui.R;
 import com.android.systemui.qs.UsageTracker;
 import com.android.systemui.qs.QSTile;
 import com.android.systemui.statusbar.policy.HotspotController;
+import com.android.systemui.statusbar.policy.KeyguardMonitor;
 
 /** Quick settings tile: Hotspot **/
 public class HotspotTile extends QSTile<QSTile.BooleanState> {
-    private static final Intent WIRELESS_SETTINGS = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+    private final AnimationIcon mEnable =
+            new AnimationIcon(R.drawable.ic_hotspot_enable_animation);
+    private final AnimationIcon mDisable =
+            new AnimationIcon(R.drawable.ic_hotspot_disable_animation);
+
+    private static final Intent TETHER_SETTINGS = new Intent().setComponent(new ComponentName(
+            "com.android.settings", "com.android.settings.TetherSettings"));
     private final HotspotController mController;
     private final Callback mCallback = new Callback();
     private final UsageTracker mUsageTracker;
+    private final KeyguardMonitor mKeyguard;
 
     public HotspotTile(Host host) {
         super(host);
         mController = host.getHotspotController();
-        mUsageTracker = new UsageTracker(host.getContext(), HotspotTile.class);
+        mUsageTracker = newUsageTracker(host.getContext());
         mUsageTracker.setListening(true);
+        mKeyguard = host.getKeyguardMonitor();
     }
 
     @Override
@@ -64,11 +74,13 @@ public class HotspotTile extends QSTile<QSTile.BooleanState> {
     protected void handleClick() {
         final boolean isEnabled = (Boolean) mState.value;
         mController.setHotspotEnabled(!isEnabled);
+        mEnable.setAllowAnimation(true);
+        mDisable.setAllowAnimation(true);
     }
 
     @Override
     protected void handleLongClick() {
-        mHost.startSettingsActivity(WIRELESS_SETTINGS);
+        mHost.startSettingsActivity(TETHER_SETTINGS);
     }
 
     @Override
@@ -77,8 +89,7 @@ public class HotspotTile extends QSTile<QSTile.BooleanState> {
         state.label = mContext.getString(R.string.quick_settings_hotspot_label);
 
         state.value = mController.isHotspotEnabled();
-        state.iconId = state.visible && state.value ? R.drawable.ic_qs_hotspot_on
-                : R.drawable.ic_qs_hotspot_off;
+        state.icon = state.visible && state.value ? mEnable : mDisable;
     }
 
     @Override
@@ -88,6 +99,10 @@ public class HotspotTile extends QSTile<QSTile.BooleanState> {
         } else {
             return mContext.getString(R.string.accessibility_quick_settings_hotspot_changed_off);
         }
+    }
+
+    private static UsageTracker newUsageTracker(Context context) {
+        return new UsageTracker(context, HotspotTile.class, R.integer.days_to_show_hotspot_tile);
     }
 
     private final class Callback implements HotspotController.Callback {
@@ -107,7 +122,7 @@ public class HotspotTile extends QSTile<QSTile.BooleanState> {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (mUsageTracker == null) {
-                mUsageTracker = new UsageTracker(context, HotspotTile.class);
+                mUsageTracker = newUsageTracker(context);
             }
             mUsageTracker.trackUsage();
         }

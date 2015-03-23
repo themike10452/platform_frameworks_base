@@ -115,10 +115,10 @@ please see themes_device_defaults.xml.
         <item name="textAppearanceListItem">@style/TextAppearance.Material.Subhead</item>
         <item name="textAppearanceListItemSmall">@style/TextAppearance.Material.Subhead</item>
         <item name="textAppearanceListItemSecondary">@style/TextAppearance.Material.Body1</item>
-        <item name="listPreferredItemPaddingLeft">16dip</item>
-        <item name="listPreferredItemPaddingRight">16dip</item>
-        <item name="listPreferredItemPaddingStart">16dip</item>
-        <item name="listPreferredItemPaddingEnd">16dip</item>
+        <item name="listPreferredItemPaddingLeft">@dimen/list_item_padding_horizontal_material</item>
+        <item name="listPreferredItemPaddingRight">@dimen/list_item_padding_horizontal_material</item>
+        <item name="listPreferredItemPaddingStart">@dimen/list_item_padding_horizontal_material</item>
+        <item name="listPreferredItemPaddingEnd">@dimen/list_item_padding_horizontal_material</item>
 
         <!-- @hide -->
         <item name="searchResultListItemHeight">58dip</item>
@@ -179,6 +179,7 @@ please see themes_device_defaults.xml.
         <item name="dialogTitleIconsDecorLayout">@layout/dialog_title_icons_material</item>
         <item name="dialogCustomTitleDecorLayout">@layout/dialog_custom_title_material</item>
         <item name="dialogTitleDecorLayout">@layout/dialog_title_material</item>
+        <item name="dialogPreferredPadding">@dimen/dialog_padding_material</item>
 
         <!-- AlertDialog attributes -->
         <item name="alertDialogTheme">@style/Theme.Material.Dialog.Alert</item>
@@ -467,10 +468,10 @@ please see themes_device_defaults.xml.
         <item name="textAppearanceListItem">@style/TextAppearance.Material.Subhead</item>
         <item name="textAppearanceListItemSmall">@style/TextAppearance.Material.Subhead</item>
         <item name="textAppearanceListItemSecondary">@style/TextAppearance.Material.Body1</item>
-        <item name="listPreferredItemPaddingLeft">16dip</item>
-        <item name="listPreferredItemPaddingRight">16dip</item>
-        <item name="listPreferredItemPaddingStart">16dip</item>
-        <item name="listPreferredItemPaddingEnd">16dip</item>
+        <item name="listPreferredItemPaddingLeft">@dimen/list_item_padding_horizontal_material</item>
+        <item name="listPreferredItemPaddingRight">@dimen/list_item_padding_horizontal_material</item>
+        <item name="listPreferredItemPaddingStart">@dimen/list_item_padding_horizontal_material</item>
+        <item name="listPreferredItemPaddingEnd">@dimen/list_item_padding_horizontal_material</item>
 
         <!-- @hide -->
         <item name="searchResultListItemHeight">58dip</item>
@@ -530,6 +531,7 @@ please see themes_device_defaults.xml.
         <item name="dialogTitleIconsDecorLayout">@layout/dialog_title_icons_material</item>
         <item name="dialogCustomTitleDecorLayout">@layout/dialog_custom_title_material</item>
         <item name="dialogTitleDecorLayout">@layout/dialog_title_material</item>
+        <item name="dialogPreferredPadding">@dimen/dialog_padding_material</item>
 
         <!-- AlertDialog attributes -->
         <item name="alertDialogTheme">@style/Theme.Material.Light.Dialog.Alert</item>
@@ -782,9 +784,6 @@ please see themes_device_defaults.xml.
         <item name="textCheckMark">@drawable/indicator_check_mark_light</item>
         <item name="textCheckMarkInverse">@drawable/indicator_check_mark_dark</item>
 
-        <item name="fastScrollPreviewBackgroundLeft">@drawable/fastscroll_label_left_holo_light</item>
-        <item name="fastScrollPreviewBackgroundRight">@drawable/fastscroll_label_right_holo_light</item>
-
         <item name="colorControlNormal">?attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_light</item>
         <item name="colorButtonNormal">@color/btn_default_material_light</item>
@@ -820,9 +819,6 @@ please see themes_device_defaults.xml.
         <item name="textCheckMark">@drawable/indicator_check_mark_dark</item>
         <item name="textCheckMarkInverse">@drawable/indicator_check_mark_light</item>
 
-        <item name="fastScrollPreviewBackgroundLeft">@drawable/fastscroll_label_left_holo_dark</item>
-        <item name="fastScrollPreviewBackgroundRight">@drawable/fastscroll_label_right_holo_dark</item>
-
         <item name="colorControlNormal">?attr/textColorSecondary</item>
         <item name="colorControlHighlight">@color/ripple_material_dark</item>
         <item name="colorButtonNormal">@color/btn_default_material_dark</item>
@@ -833,6 +829,7 @@ please see themes_device_defaults.xml.
          secondary text color, with the primary text color. -->
     <style name="ThemeOverlay.Material.ActionBar">
         <item name="colorControlNormal">?attr/textColorPrimary</item>
+        <item name="searchViewStyle">@style/Widget.Material.Light.SearchView.ActionBar</item>
     </style>
 
     <!-- Theme overlay that replaces colors with their dark versions and replaces the normal
@@ -840,6 +837,7 @@ please see themes_device_defaults.xml.
          text color. -->
     <style name="ThemeOverlay.Material.Dark.ActionBar">
         <item name="colorControlNormal">?attr/textColorPrimary</item>
+        <item name="searchViewStyle">@style/Widget.Material.SearchView.ActionBar</item>
     </style>
 
     <!-- Variant of the material (dark) theme with no action bar. -->
@@ -1008,6 +1006,7 @@ please see themes_device_defaults.xml.
 
         <item name="windowFrame">@null</item>
         <item name="windowTitleStyle">@style/DialogWindowTitle.Material</item>
+        <item name="windowTitleBackgroundStyle">@style/DialogWindowTitleBackground.Material</item>
         <item name="windowBackground">@drawable/dialog_background_material</item>
         <item name="windowElevation">@dimen/floating_window_z</item>
         <item name="windowIsFloating">true</item>
@@ -1026,10 +1025,10 @@ please see themes_device_defaults.xml.
         <item name="textAppearance">@style/TextAppearance.Material</item>
         <item name="textAppearanceInverse">@style/TextAppearance.Material.Inverse</item>
 
-        <item name="listPreferredItemPaddingLeft">16dip</item>
-        <item name="listPreferredItemPaddingRight">16dip</item>
-        <item name="listPreferredItemPaddingStart">16dip</item>
-        <item name="listPreferredItemPaddingEnd">16dip</item>
+        <item name="listPreferredItemPaddingLeft">24dip</item>
+        <item name="listPreferredItemPaddingRight">24dip</item>
+        <item name="listPreferredItemPaddingStart">24dip</item>
+        <item name="listPreferredItemPaddingEnd">24dip</item>
 
         <item name="listDivider">@null</item>
 
@@ -1124,6 +1123,7 @@ please see themes_device_defaults.xml.
 
         <item name="windowFrame">@null</item>
         <item name="windowTitleStyle">@style/DialogWindowTitle.Material.Light</item>
+        <item name="windowTitleBackgroundStyle">@style/DialogWindowTitleBackground.Material.Light</item>
         <item name="windowBackground">@drawable/dialog_background_material</item>
         <item name="windowElevation">@dimen/floating_window_z</item>
         <item name="windowIsFloating">true</item>
@@ -1142,10 +1142,10 @@ please see themes_device_defaults.xml.
         <item name="textAppearance">@style/TextAppearance.Material</item>
         <item name="textAppearanceInverse">@style/TextAppearance.Material.Inverse</item>
 
-        <item name="listPreferredItemPaddingLeft">16dip</item>
-        <item name="listPreferredItemPaddingRight">16dip</item>
-        <item name="listPreferredItemPaddingStart">16dip</item>
-        <item name="listPreferredItemPaddingEnd">16dip</item>
+        <item name="listPreferredItemPaddingLeft">24dip</item>
+        <item name="listPreferredItemPaddingRight">24dip</item>
+        <item name="listPreferredItemPaddingStart">24dip</item>
+        <item name="listPreferredItemPaddingEnd">24dip</item>
 
         <item name="listDivider">@null</item>
 

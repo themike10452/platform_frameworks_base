@@ -16,6 +16,7 @@
 
 package com.android.systemui.statusbar.policy;
 
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -27,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.os.UserHandle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateFormat;
@@ -57,7 +59,6 @@ public class Clock extends TextView implements DemoMode {
     protected String mClockFormatString;
     protected SimpleDateFormat mClockFormat;
     protected Locale mLocale;
-
 
     public static final int AM_PM_STYLE_GONE    = 0;
     public static final int AM_PM_STYLE_SMALL   = 1;
@@ -121,6 +122,8 @@ public class Clock extends TextView implements DemoMode {
         }
     }
 
+    private final int mAmPmStyle;
+
     public Clock(Context context) {
         this(context, null);
     }
@@ -156,7 +159,8 @@ public class Clock extends TextView implements DemoMode {
             filter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
             filter.addAction(Intent.ACTION_USER_SWITCHED);
 
-            getContext().registerReceiver(mIntentReceiver, filter, null, getHandler());
+            getContext().registerReceiverAsUser(mIntentReceiver, UserHandle.ALL, filter,
+                    null, getHandler());
         }
 
         // NOTE: It's safe to do these after registering the receiver since the receiver always runs
@@ -212,7 +216,7 @@ public class Clock extends TextView implements DemoMode {
 
     private final CharSequence getSmallTime() {
         Context context = getContext();
-        boolean is24 = DateFormat.is24HourFormat(context);
+        boolean is24 = DateFormat.is24HourFormat(context, ActivityManager.getCurrentUser());
         LocaleData d = LocaleData.get(context.getResources().getConfiguration().locale);
 
         final char MAGIC1 = '\uEF00';
@@ -302,6 +306,7 @@ public class Clock extends TextView implements DemoMode {
                 }
             }
         }
+
         if (mClockDateDisplay != CLOCK_DATE_DISPLAY_NORMAL) {
             if (dateString != null) {
                 int dateStringLen = dateString.length();

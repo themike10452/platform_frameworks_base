@@ -45,6 +45,7 @@ public class BarTransitions {
     public static final int MODE_LIGHTS_OUT = 3;
     public static final int MODE_TRANSPARENT = 4;
     public static final int MODE_WARNING = 5;
+    public static final int MODE_LIGHTS_OUT_TRANSPARENT = 6;
 
     public static final int LIGHTS_IN_DURATION = 250;
     public static final int LIGHTS_OUT_DURATION = 750;
@@ -60,7 +61,9 @@ public class BarTransitions {
         mTag = "BarTransitions." + view.getClass().getSimpleName();
         mView = view;
         mBarBackground = new BarBackgroundDrawable(mView.getContext(), gradientResourceId);
-        mView.setBackground(mBarBackground);
+        if (HIGH_END) {
+            mView.setBackground(mBarBackground);
+        }
     }
 
     public int getMode() {
@@ -68,6 +71,14 @@ public class BarTransitions {
     }
 
     public void transitionTo(int mode, boolean animate) {
+        // low-end devices do not support translucent modes, fallback to opaque
+        if (!HIGH_END && (mode == MODE_SEMI_TRANSPARENT || mode == MODE_TRANSLUCENT
+                || mode == MODE_TRANSPARENT)) {
+            mode = MODE_OPAQUE;
+        }
+        if (!HIGH_END && (mode == MODE_LIGHTS_OUT_TRANSPARENT)) {
+            mode = MODE_LIGHTS_OUT;
+        }
         if (mMode == mode) return;
         int oldMode = mMode;
         mMode = mode;
@@ -77,7 +88,9 @@ public class BarTransitions {
     }
 
     protected void onTransition(int oldMode, int newMode, boolean animate) {
-        applyModeBackground(oldMode, newMode, animate);
+        if (HIGH_END) {
+            applyModeBackground(oldMode, newMode, animate);
+        }
     }
 
     protected void applyModeBackground(int oldMode, int newMode, boolean animate) {
@@ -93,11 +106,16 @@ public class BarTransitions {
         if (mode == MODE_LIGHTS_OUT) return "MODE_LIGHTS_OUT";
         if (mode == MODE_TRANSPARENT) return "MODE_TRANSPARENT";
         if (mode == MODE_WARNING) return "MODE_WARNING";
+        if (mode == MODE_LIGHTS_OUT_TRANSPARENT) return "MODE_LIGHTS_OUT_TRANSPARENT";
         throw new IllegalArgumentException("Unknown mode " + mode);
     }
 
     public void finishAnimations() {
         mBarBackground.finishAnimation();
+    }
+
+    protected boolean isLightsOut(int mode) {
+        return mode == MODE_LIGHTS_OUT || mode == MODE_LIGHTS_OUT_TRANSPARENT;
     }
 
     private static class BarBackgroundDrawable extends Drawable {
@@ -187,7 +205,7 @@ public class BarTransitions {
                 targetColor = mSemiTransparent;
             } else if (mMode == MODE_SEMI_TRANSPARENT) {
                 targetColor = mSemiTransparent;
-            } else if (mMode == MODE_TRANSPARENT) {
+            } else if (mMode == MODE_TRANSPARENT || mMode == MODE_LIGHTS_OUT_TRANSPARENT) {
                 targetColor = mTransparent;
             } else {
                 targetColor = mOpaque;
