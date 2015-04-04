@@ -51,9 +51,7 @@
   <string name="navring_choose_action_title">Choisir une action</string>
   <string name="select_application">Sélectionner une application</string>
   <string name="lockscreen_target_empty">Vide</string>
-
-(Must be translated) Remeber if you want to use "'" put a "\" before it. Example: "un\'albero"
-    <string name="navbar_power_button">Bouton d\'alimentation</string>
+   <string name="navbar_power_button">Bouton d\'alimentation</string>
     <string name="quick_settings_expanded_desktop">Etendu</string>
     <string name="quick_settings_expanded_desktop_off">Normal</string>
 </resources>

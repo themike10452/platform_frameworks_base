@@ -82,7 +82,6 @@ public class Clock extends TextView implements DemoMode {
     protected int mClockStyle = STYLE_CLOCK_RIGHT;
     protected boolean mShowClock;
     private int mClockAndDateWidth;
-
     private int mAmPmStyle;
 
     private SettingsObserver mSettingsObserver;
@@ -121,8 +120,6 @@ public class Clock extends TextView implements DemoMode {
             updateSettings();
         }
     }
-
-    private final int mAmPmStyle;
 
     public Clock(Context context) {
         this(context, null);

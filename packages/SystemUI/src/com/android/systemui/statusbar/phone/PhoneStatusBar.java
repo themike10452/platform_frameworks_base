@@ -2507,7 +2507,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             return ;
         }
 
-        mNotificationPanel.expand();
+        mNotificationPanel.expandWithQs();
 
         if (false) postStartTracing();
     }
@@ -3466,13 +3466,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mHeadsUpNotificationView.setVisibility(vis ? View.VISIBLE : View.GONE);
     }
 
-    public void onHeadsUpDismissed(int direction) {
-        if (direction == HeadsUpNotificationView.DIRECTION_X) {
-             mHeadsUpNotificationView.dismiss();
-        } else if (direction == HeadsUpNotificationView.DIRECTION_Y) {
-             mHeadsUpNotificationView.release();
-             scheduleHeadsUpClose();
-        }
+    public void onHeadsUpDismissed() {
+        mHeadsUpNotificationView.dismiss();
     }
 
     /**

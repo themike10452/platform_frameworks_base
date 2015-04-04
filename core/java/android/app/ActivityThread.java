@@ -374,7 +374,7 @@ public final class ActivityThread {
         public ReceiverData(Intent intent, int resultCode, String resultData, Bundle resultExtras,
                 boolean ordered, boolean sticky, IBinder token, int sendingUser) {
             super(resultCode, resultData, resultExtras, TYPE_COMPONENT, ordered, sticky,
-                    token, sendingUser, intent.getFlags());
+                    token, sendingUser);
             this.intent = intent;
         }
 
@@ -1086,27 +1086,12 @@ public final class ActivityThread {
             WindowManagerGlobal.getInstance().dumpGfxInfo(fd);
         }
 
-        private void dumpDatabaseInfo(FileDescriptor fd, String[] args) {
+        @Override
+        public void dumpDbInfo(FileDescriptor fd, String[] args) {
             PrintWriter pw = new FastPrintWriter(new FileOutputStream(fd));
             PrintWriterPrinter printer = new PrintWriterPrinter(pw);
             SQLiteDebug.dump(printer, args);
             pw.flush();
-        }
-
-        @Override
-        public void dumpDbInfo(final FileDescriptor fd, final String[] args) {
-            if (mSystemThread) {
-                // Ensure this invocation is asynchronous to prevent
-                // writer waiting due to buffer cannot be consumed.
-                AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        dumpDatabaseInfo(fd, args);
-                    }
-                });
-            } else {
-                dumpDatabaseInfo(fd, args);
-            }
         }
 
         @Override
@@ -4211,24 +4196,22 @@ public final class ActivityThread {
     final void handleDispatchPackageBroadcast(int cmd, String[] packages) {
         boolean hasPkgInfo = false;
         if (packages != null) {
-            synchronized (mResourcesManager) {
-                for (int i=packages.length-1; i>=0; i--) {
-                    //Slog.i(TAG, "Cleaning old package: " + packages[i]);
-                    if (!hasPkgInfo) {
-                        WeakReference<LoadedApk> ref;
-                        ref = mPackages.get(packages[i]);
+            for (int i=packages.length-1; i>=0; i--) {
+                //Slog.i(TAG, "Cleaning old package: " + packages[i]);
+                if (!hasPkgInfo) {
+                    WeakReference<LoadedApk> ref;
+                    ref = mPackages.get(packages[i]);
+                    if (ref != null && ref.get() != null) {
+                        hasPkgInfo = true;
+                    } else {
+                        ref = mResourcePackages.get(packages[i]);
                         if (ref != null && ref.get() != null) {
                             hasPkgInfo = true;
-                        } else {
-                            ref = mResourcePackages.get(packages[i]);
-                            if (ref != null && ref.get() != null) {
-                                hasPkgInfo = true;
-                            }
                         }
                     }
-                    mPackages.remove(packages[i]);
-                    mResourcePackages.remove(packages[i]);
                 }
+                mPackages.remove(packages[i]);
+                mResourcePackages.remove(packages[i]);
             }
         }
         ApplicationPackageManager.handlePackageBroadcast(cmd, packages,

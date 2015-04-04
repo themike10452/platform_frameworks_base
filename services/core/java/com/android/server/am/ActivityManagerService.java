@@ -1269,10 +1269,11 @@ public final class ActivityManagerService extends ActivityManagerNative
     static final int FINISH_BOOTING_MSG = 45;
     static final int START_USER_SWITCH_MSG = 46;
     static final int SEND_LOCALE_TO_MOUNT_DAEMON_MSG = 47;
-    static final int POST_PRIVACY_NOTIFICATION_MSG = 48;
-    static final int CANCEL_PRIVACY_NOTIFICATION_MSG = 49;
-    static final int DISMISS_DIALOG_MSG = 50;
-    static final int NOTIFY_TASK_STACK_CHANGE_LISTENERS_MSG = 51;
+    static final int DISMISS_DIALOG_MSG = 48;
+    static final int NOTIFY_TASK_STACK_CHANGE_LISTENERS_MSG = 49;
+
+    static final int POST_PRIVACY_NOTIFICATION_MSG = 60;
+    static final int CANCEL_PRIVACY_NOTIFICATION_MSG = 61;
 
     static final int FIRST_ACTIVITY_STACK_MSG = 100;
     static final int FIRST_BROADCAST_QUEUE_MSG = 200;
@@ -1789,6 +1790,27 @@ public final class ActivityManagerService extends ActivityManagerNative
                 }
                 break;
             }
+            case DISMISS_DIALOG_MSG: {
+                final Dialog d = (Dialog) msg.obj;
+                d.dismiss();
+                break;
+            }
+            case NOTIFY_TASK_STACK_CHANGE_LISTENERS_MSG: {
+                synchronized (ActivityManagerService.this) {
+                    int i = mTaskStackListeners.beginBroadcast();
+                    while (i > 0) {
+                        i--;
+                        try {
+                            // Make a one-way callback to the listener
+                            mTaskStackListeners.getBroadcastItem(i).onTaskStackChanged();
+                        } catch (RemoteException e){
+                            // Handled by the RemoteCallbackList
+                        }
+                    }
+                    mTaskStackListeners.finishBroadcast();
+                }
+                break;
+            }
             case POST_PRIVACY_NOTIFICATION_MSG: {
                 INotificationManager inm = NotificationManager.getService();
                 if (inm == null) {
@@ -1852,27 +1874,6 @@ public final class ActivityManagerService extends ActivityManagerNative
                 } catch (RemoteException e) {
                 }
             } break;
-            case DISMISS_DIALOG_MSG: {
-                final Dialog d = (Dialog) msg.obj;
-                d.dismiss();
-                break;
-            }
-            case NOTIFY_TASK_STACK_CHANGE_LISTENERS_MSG: {
-                synchronized (ActivityManagerService.this) {
-                    int i = mTaskStackListeners.beginBroadcast();
-                    while (i > 0) {
-                        i--;
-                        try {
-                            // Make a one-way callback to the listener
-                            mTaskStackListeners.getBroadcastItem(i).onTaskStackChanged();
-                        } catch (RemoteException e){
-                            // Handled by the RemoteCallbackList
-                        }
-                    }
-                    mTaskStackListeners.finishBroadcast();
-                }
-                break;
-            }
             }
         }
     };

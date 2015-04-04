@@ -91,7 +91,6 @@ public class NavigationBarView extends LinearLayout {
     int mBarSize;
     boolean mVertical;
     boolean mScreenOn;
-    boolean mLeftInLandscape;
 
     boolean mShowMenu;
     int mDisabledFlags = 0;
@@ -512,11 +511,6 @@ public class NavigationBarView extends LinearLayout {
         return mVertical;
     }
 
-    public void setLeftInLandscape(boolean leftInLandscape) {
-        mLeftInLandscape = leftInLandscape;
-        mDeadZone.setStartFromRight(leftInLandscape);
-    }
-
     public void reorient() {
         int orientation = mContext.getResources().getConfiguration().orientation;
         mRotatedViews[Configuration.ORIENTATION_PORTRAIT].setVisibility(View.GONE);
@@ -534,7 +528,6 @@ public class NavigationBarView extends LinearLayout {
         getImeSwitchButton().setOnClickListener(mImeSwitcherClickListener);
 
         mDeadZone = (DeadZone) mCurrentView.findViewById(R.id.deadzone);
-        mDeadZone.setStartFromRight(mLeftInLandscape);
 
         // force the low profile & disabled states into compliance
         mBarTransitions.init(mVertical);
