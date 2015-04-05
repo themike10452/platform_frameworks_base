@@ -1246,7 +1246,6 @@ public final class Settings {
             // At one time in System, then Global, but now back in Secure
             MOVED_TO_SECURE.add(Secure.INSTALL_NON_MARKET_APPS);
 
-            MOVED_TO_SECURE.add(Secure.VOLUME_LINK_NOTIFICATION);
             MOVED_TO_SECURE.add(Secure.QS_TILES);
             MOVED_TO_SECURE.add(Secure.QS_USE_MAIN_TILES);
             MOVED_TO_SECURE.add(Secure.QS_SHOW_BRIGHTNESS_SLIDER);
@@ -5363,13 +5362,6 @@ public final class Settings {
          */
         public static final String STATUS_BAR_LOCKED_ON_SECURE_KEYGUARD
                 = "status_bar_locked_on_secure_keyguard";
-
-        /**
-         * Boolean value whether to link ringtone and notification volume
-         *
-         * @hide
-         */
-        public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
 
         /** Whether to show the brightness slider in quick settings panel.
          *

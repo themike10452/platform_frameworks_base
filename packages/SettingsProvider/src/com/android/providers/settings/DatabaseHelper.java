@@ -71,7 +71,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // database gets upgraded properly. At a minimum, please confirm that 'upgradeVersion'
     // is properly propagated through your change.  Not doing so will result in a loss of user
     // settings.
-    private static final int DATABASE_VERSION = 125;
+    private static final int DATABASE_VERSION = 124;
 
     private Context mContext;
     private int mUserHandle;
@@ -1920,12 +1920,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         if (upgradeVersion < 120) {
-            moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE,
-                    new String[] { Settings.Secure.VOLUME_LINK_NOTIFICATION }, true);
-            upgradeVersion = 120;
-        }
-
-        if (upgradeVersion < 121) {
             String[] qsTiles = new String[] {
                     Settings.Secure.QS_TILES,
                     Settings.Secure.QS_USE_MAIN_TILES
@@ -1933,13 +1927,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE,
                     qsTiles, true);
+            upgradeVersion = 120;
+        }
+
+        if (upgradeVersion < 121) {
+            String[] settingsToMove = new String[] {
+                    Settings.Secure.QS_SHOW_BRIGHTNESS_SLIDER,
+            };
+
+            moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE,
+                    settingsToMove, true);
             upgradeVersion = 121;
         }
 
         if (upgradeVersion < 122) {
-            String[] settingsToMove = new String[] {
-                    Settings.Secure.QS_SHOW_BRIGHTNESS_SLIDER,
-            };
+            String[] settingsToMove = Settings.Secure.NAVIGATION_RING_TARGETS;
 
             moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE,
                     settingsToMove, true);
@@ -1947,14 +1949,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         if (upgradeVersion < 123) {
-            String[] settingsToMove = Settings.Secure.NAVIGATION_RING_TARGETS;
-
-            moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE,
-                    settingsToMove, true);
-            upgradeVersion = 123;
-        }
-
-        if (upgradeVersion < 124) {
             // only the owner has access to global table, so we need to check that here
             if (mUserHandle == UserHandle.USER_OWNER) {
                 String[] globalToSecure = new String[] { Settings.Secure.POWER_MENU_ACTIONS };
@@ -1966,10 +1960,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             };
             moveSettingsToNewTable(db, TABLE_SYSTEM, TABLE_SECURE, systemToSecure, true);
 
-            upgradeVersion = 124;
+            upgradeVersion = 123;
         }
 
-        if (upgradeVersion < 125) {
+        if (upgradeVersion < 124) {
             // Migrate from cm-12.0 if there is no entry from cm-11.0
             db.beginTransaction();
             SQLiteStatement stmt = null;
@@ -1985,7 +1979,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.endTransaction();
                 if (stmt != null) stmt.close();
             }
-            upgradeVersion = 125;
+            upgradeVersion = 124;
         }
 
         // *** Remember to update DATABASE_VERSION above!
