@@ -2936,6 +2936,12 @@ public final class Settings {
          */
         public static final String DIALER_OPENCNAM_AUTH_TOKEN = "dialer_opencnam_auth_token";
 
+	/**
+         * SmartCall
+         * @hide
+         */
+        public static final String SMART_PHONE_CALLER = "smart_phone_caller";
+
         /**
          * I am the lolrus.
          * <p>
