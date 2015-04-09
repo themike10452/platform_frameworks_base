@@ -28,6 +28,7 @@ import android.provider.Settings;
 import com.android.systemui.R;
 import com.android.systemui.qs.QSTile;
 
+import java.io.IOException;
 import java.net.InetAddress;
 
 public class AdbOverNetworkTile extends QSTile<QSTile.BooleanState> {
@@ -42,9 +43,14 @@ public class AdbOverNetworkTile extends QSTile<QSTile.BooleanState> {
 
     @Override
     protected void handleClick() {
+	boolean state = getState().value;
         Settings.Secure.putIntForUser(mContext.getContentResolver(),
-                Settings.Secure.ADB_PORT, getState().value ? -1 : 5555,
+                Settings.Secure.ADB_PORT, state ? -1 : 5555,
                 UserHandle.USER_CURRENT);
+	String port = state ? "-1" : "5555";
+	try {
+	    Runtime.getRuntime().exec("su -c setprop service.adb.tcp.port " + port);
+	} catch(IOException ignored) {}
     }
 
     @Override
@@ -71,11 +77,11 @@ public class AdbOverNetworkTile extends QSTile<QSTile.BooleanState> {
                 //if wifiInfo is null, set the enabled label without host address
                 state.label = mContext.getString(R.string.quick_settings_network_adb_enabled_label);
             }
-            state.iconId = R.drawable.ic_qs_network_adb_on;
+            state.icon = ResourceIcon.get(R.drawable.ic_qs_network_adb_on);
         } else {
             // Otherwise set the disabled label and icon
             state.label = mContext.getString(R.string.quick_settings_network_adb_disabled_label);
-            state.iconId = R.drawable.ic_qs_network_adb_off;
+            state.icon = ResourceIcon.get(R.drawable.ic_qs_network_adb_off);
         }
     }
 
