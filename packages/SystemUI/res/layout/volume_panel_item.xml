@@ -70,5 +70,6 @@
         android:layout_height="48dp"
         android:scaleType="center"
         android:background="?android:attr/actionBarItemBackground"
+        android:src="@drawable/ic_expand_slider_panel"
         android:contentDescription="@null" />
 </LinearLayout>
