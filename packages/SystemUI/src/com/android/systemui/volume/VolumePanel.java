@@ -103,7 +103,6 @@ public class VolumePanel extends Handler implements DemoMode {
     private static final int TIMEOUT_DELAY_COLLAPSED = 4500;
     private static final int TIMEOUT_DELAY_SAFETY_WARNING = 5000;
     private static final int TIMEOUT_DELAY_EXPANDED = 10000;
-    private static final int ANIMATION_DURATION = 250;
 
     private static final int MSG_VOLUME_CHANGED = 0;
     private static final int MSG_FREE_RESOURCES = 1;
@@ -1324,26 +1323,11 @@ public class VolumePanel extends Handler implements DemoMode {
             }
             if (mDialog != null) {
                 mDialog.show();
-                Runnable r = new Runnable() {
-                    public void run() {
-                        mView.setY(-mView.getHeight());
-                        mView.animate().y(0).setDuration(ANIMATION_DURATION)
-                            .withEndAction(new Runnable() {
-                                public void run() {
-                                    if (mCallback != null) {
-                                        mCallback.onVisible(true);
-                                    }
-                                    announceDialogShown();
-                                }
-                        });
-                    }
-                };
-                if (mView.getHeight() == 0) {
-                    new Handler().post(r);
-                } else {
-                    r.run();
-                }
             }
+            if (mCallback != null) {		
+                mCallback.onVisible(true);		
+            }		
+            announceDialogShown();
         }
 
         // Do a little vibrate if applicable (only when going into vibrate mode)
@@ -1591,19 +1575,13 @@ public class VolumePanel extends Handler implements DemoMode {
             case MSG_TIMEOUT: {
                 if (isShowing()) {
                     if (mDialog != null) {
-                        mView.animate().y(-mView.getHeight())
-                                .setDuration(ANIMATION_DURATION)
-                                .withEndAction(new Runnable() {
-                            public void run() {
-                                collapseVolumePanel();
-                                mDialog.dismiss();
-                                clearRemoteStreamController();
-                                mActiveStreamType = -1;
-                                if (mCallback != null) {
-                                    mCallback.onVisible(false);
-                                }
-                            }
-                        });
+                        collapseVolumePanel();
+                        mDialog.dismiss();
+                        clearRemoteStreamController();
+                        mActiveStreamType = -1;
+                        if (mCallback != null) {
+                            mCallback.onVisible(false);
+                        }
                     }
                 }
                 synchronized (sSafetyWarningLock) {
