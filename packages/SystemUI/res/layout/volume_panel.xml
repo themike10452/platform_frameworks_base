@@ -30,8 +30,7 @@
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         android:orientation="vertical"
-        android:clipChildren="false"
-        android:animateLayoutChanges="true" />
+        android:clipChildren="false" />
 
      <include
         android:layout_width="match_parent"

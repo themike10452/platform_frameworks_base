@@ -504,10 +504,16 @@ public class WindowManagerService extends IWindowManager.Stub
     int mLastDisplayFreezeDuration = 0;
     Object mLastFinishedFreezeSource = null;
     boolean mWaitingForConfig = false;
-    boolean mWindowsFreezingScreen = false;
+
+    final static int WINDOWS_FREEZING_SCREENS_NONE = 0;
+    final static int WINDOWS_FREEZING_SCREENS_ACTIVE = 1;
+    final static int WINDOWS_FREEZING_SCREENS_TIMEOUT = 2;
+    private int mWindowsFreezingScreen = WINDOWS_FREEZING_SCREENS_NONE;
+
     boolean mClientFreezingScreen = false;
     int mAppsFreezingScreen = 0;
     int mLastWindowForcedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+    int mLastKeyguardForcedOrientation = ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
 
     int mLayoutSeq = 0;
 
@@ -612,6 +618,13 @@ public class WindowManagerService extends IWindowManager.Stub
     // Time we wait after a timeout before trying to wait again.
     static final long WALLPAPER_TIMEOUT_RECOVERY = 10000;
     boolean mAnimateWallpaperWithTarget;
+
+    // We give a wallpaper up to 1000ms to finish drawing before playing app transitions.
+    static final long WALLPAPER_DRAW_PENDING_TIMEOUT_DURATION = 1000;
+    static final int WALLPAPER_DRAW_NORMAL = 0;
+    static final int WALLPAPER_DRAW_PENDING = 1;
+    static final int WALLPAPER_DRAW_TIMEOUT = 2;
+    int mWallpaperDrawState = WALLPAPER_DRAW_NORMAL;
 
     AppWindowToken mFocusedApp = null;
 
@@ -3711,43 +3724,70 @@ public class WindowManagerService extends IWindowManager.Stub
         }
     }
 
-    public int getOrientationFromWindowsLocked() {
-        if (mDisplayFrozen || mOpeningApps.size() > 0 || mClosingApps.size() > 0) {
-            // If the display is frozen, some activities may be in the middle
-            // of restarting, and thus have removed their old window.  If the
-            // window has the flag to hide the lock screen, then the lock screen
-            // can re-appear and inflict its own orientation on us.  Keep the
-            // orientation stable until this all settles down.
-            return mLastWindowForcedOrientation;
+    public int getOrientationLocked() {
+        if (mDisplayFrozen) {
+            if (mLastWindowForcedOrientation != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+                if (DEBUG_ORIENTATION) Slog.v(TAG, "Display is frozen, return "
+                        + mLastWindowForcedOrientation);
+                // If the display is frozen, some activities may be in the middle
+                // of restarting, and thus have removed their old window.  If the
+                // window has the flag to hide the lock screen, then the lock screen
+                // can re-appear and inflict its own orientation on us.  Keep the
+                // orientation stable until this all settles down.
+                return mLastWindowForcedOrientation;
+            }
+        } else {
+            // TODO(multidisplay): Change to the correct display.
+            final WindowList windows = getDefaultWindowListLocked();
+            int pos = windows.size() - 1;
+            while (pos >= 0) {
+                WindowState win = windows.get(pos);
+                pos--;
+                if (win.mAppToken != null) {
+                    // We hit an application window. so the orientation will be determined by the
+                    // app window. No point in continuing further.
+                    break;
+                }
+                if (!win.isVisibleLw() || !win.mPolicyVisibilityAfterAnim) {
+                    continue;
+                }
+                int req = win.mAttrs.screenOrientation;
+                if((req == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) ||
+                        (req == ActivityInfo.SCREEN_ORIENTATION_BEHIND)){
+                    continue;
+                }
+
+                if (DEBUG_ORIENTATION) Slog.v(TAG, win + " forcing orientation to " + req);
+                if (mPolicy.isKeyguardHostWindow(win.mAttrs)) {
+                    mLastKeyguardForcedOrientation = req;
+                }
+                return (mLastWindowForcedOrientation = req);
+            }
+            mLastWindowForcedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+
+            if (mPolicy.isKeyguardLocked()) {
+                // The screen is locked and no top system window is requesting an orientation.
+                // Return either the orientation of the show-when-locked app (if there is any) or
+                // the orientation of the keyguard. No point in searching from the rest of apps.
+                WindowState winShowWhenLocked = (WindowState) mPolicy.getWinShowWhenLockedLw();
+                AppWindowToken appShowWhenLocked = winShowWhenLocked == null ?
+                        null : winShowWhenLocked.mAppToken;
+                if (appShowWhenLocked != null) {
+                    int req = appShowWhenLocked.requestedOrientation;
+                    if (req == ActivityInfo.SCREEN_ORIENTATION_BEHIND) {
+                        req = mLastKeyguardForcedOrientation;
+                    }
+                    if (DEBUG_ORIENTATION) Slog.v(TAG, "Done at " + appShowWhenLocked
+                            + " -- show when locked, return " + req);
+                    return req;
+                }
+                if (DEBUG_ORIENTATION) Slog.v(TAG,
+                        "No one is requesting an orientation when the screen is locked");
+                return mLastKeyguardForcedOrientation;
+            }
         }
 
-        // TODO(multidisplay): Change to the correct display.
-        final WindowList windows = getDefaultWindowListLocked();
-        int pos = windows.size() - 1;
-        while (pos >= 0) {
-            WindowState win = windows.get(pos);
-            pos--;
-            if (win.mAppToken != null) {
-                // We hit an application window. so the orientation will be determined by the
-                // app window. No point in continuing further.
-                return (mLastWindowForcedOrientation=ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-            }
-            if (!win.isVisibleLw() || !win.mPolicyVisibilityAfterAnim) {
-                continue;
-            }
-            int req = win.mAttrs.screenOrientation;
-            if((req == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) ||
-                    (req == ActivityInfo.SCREEN_ORIENTATION_BEHIND)){
-                continue;
-            }
-
-            if (DEBUG_ORIENTATION) Slog.v(TAG, win + " forcing orientation to " + req);
-            return (mLastWindowForcedOrientation=req);
-        }
-        return (mLastWindowForcedOrientation=ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-    }
-
-    public int getOrientationFromAppTokensLocked() {
+        // Top system windows are not requesting an orientation. Start searching from apps.
         int lastOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         boolean findingBehind = false;
         boolean lastFullscreen = false;
@@ -3819,8 +3859,11 @@ public class WindowManagerService extends IWindowManager.Stub
                 findingBehind |= (or == ActivityInfo.SCREEN_ORIENTATION_BEHIND);
             }
         }
-        if (DEBUG_ORIENTATION) Slog.v(TAG, "No app is requesting an orientation");
-        return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+        if (DEBUG_ORIENTATION) Slog.v(TAG, "No app is requesting an orientation, return "
+                + mForcedAppOrientation);
+        // The next app has not been requested to be visible, so we keep the current orientation
+        // to prevent freezing/unfreezing the display too early.
+        return mForcedAppOrientation;
     }
 
     @Override
@@ -3900,11 +3943,7 @@ public class WindowManagerService extends IWindowManager.Stub
     boolean updateOrientationFromAppTokensLocked(boolean inTransaction) {
         long ident = Binder.clearCallingIdentity();
         try {
-            int req = getOrientationFromWindowsLocked();
-            if (req == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
-                req = getOrientationFromAppTokensLocked();
-            }
-
+            int req = getOrientationLocked();
             if (req != mForcedAppOrientation) {
                 mForcedAppOrientation = req;
                 //send a message to Policy indicating orientation change to take
@@ -4092,6 +4131,8 @@ public class WindowManagerService extends IWindowManager.Stub
                 mAppTransition.prepare();
                 mStartingIconInTransition = false;
                 mSkipAppTransitionAnimation = false;
+            }
+            if (mAppTransition.isTransitionSet()) {
                 mH.removeMessages(H.APP_TRANSITION_TIMEOUT);
                 mH.sendEmptyMessageDelayed(H.APP_TRANSITION_TIMEOUT, 5000);
             }
@@ -4590,19 +4631,19 @@ public class WindowManagerService extends IWindowManager.Stub
                     wtoken.hiddenRequested, HIDE_STACK_CRAWLS ?
                             null : new RuntimeException("here").fillInStackTrace());
 
+            mOpeningApps.remove(wtoken);
+            mClosingApps.remove(wtoken);
+            wtoken.waitingToShow = wtoken.waitingToHide = false;
+            wtoken.hiddenRequested = !visible;
+
             // If we are preparing an app transition, then delay changing
             // the visibility of this token until we execute that transition.
             if (okToDisplay() && mAppTransition.isTransitionSet()) {
-                wtoken.hiddenRequested = !visible;
-
                 if (!wtoken.startingDisplayed) {
                     if (DEBUG_APP_TRANSITIONS) Slog.v(
                             TAG, "Setting dummy animation on: " + wtoken);
                     wtoken.mAppAnimator.setDummyAnimation();
                 }
-                mOpeningApps.remove(wtoken);
-                mClosingApps.remove(wtoken);
-                wtoken.waitingToShow = wtoken.waitingToHide = false;
                 wtoken.inPendingTransaction = true;
                 if (visible) {
                     mOpeningApps.add(wtoken);
@@ -4676,7 +4717,8 @@ public class WindowManagerService extends IWindowManager.Stub
                 WindowState w = wtoken.allAppWindows.get(i);
                 if (w.mAppFreezing) {
                     w.mAppFreezing = false;
-                    if (w.mHasSurface && !w.mOrientationChanging) {
+                    if (w.mHasSurface && !w.mOrientationChanging
+                            && mWindowsFreezingScreen != WINDOWS_FREEZING_SCREENS_TIMEOUT) {
                         if (DEBUG_ORIENTATION) Slog.v(TAG, "set mOrientationChanging of " + w);
                         w.mOrientationChanging = true;
                         mInnerFields.mOrientationChangeComplete = false;
@@ -4725,7 +4767,7 @@ public class WindowManagerService extends IWindowManager.Stub
                 if (mAppsFreezingScreen == 1) {
                     startFreezingDisplayLocked(false, 0, 0);
                     mH.removeMessages(H.APP_FREEZE_TIMEOUT);
-                    mH.sendEmptyMessageDelayed(H.APP_FREEZE_TIMEOUT, 5000);
+                    mH.sendEmptyMessageDelayed(H.APP_FREEZE_TIMEOUT, 2000);
                 }
             }
             final int N = wtoken.allAppWindows.size();
@@ -5745,7 +5787,7 @@ public class WindowManagerService extends IWindowManager.Stub
         boolean wallpaperEnabled = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_enableWallpaperService)
                 && !mOnlyCore;
-        boolean haveKeyguard = false;
+        boolean haveKeyguard = true;
         // TODO(multidisplay): Expand to all displays?
         final WindowList windows = getDefaultWindowListLocked();
         final int N = windows.size();
@@ -6519,7 +6561,7 @@ public class WindowManagerService extends IWindowManager.Stub
         mAltOrientation = altOrientation;
         mPolicy.setRotationLw(mRotation);
 
-        mWindowsFreezingScreen = true;
+        mWindowsFreezingScreen = WINDOWS_FREEZING_SCREENS_ACTIVE;
         mH.removeMessages(H.WINDOW_FREEZE_TIMEOUT);
         mH.sendEmptyMessageDelayed(H.WINDOW_FREEZE_TIMEOUT, WINDOW_FREEZE_TIMEOUT_DURATION);
         mWaitingForConfig = true;
@@ -7653,6 +7695,7 @@ public class WindowManagerService extends IWindowManager.Stub
 
         public static final int CHECK_IF_BOOT_ANIMATION_FINISHED = 37;
         public static final int RESET_ANR_MESSAGE = 38;
+        public static final int WALLPAPER_DRAW_PENDING_TIMEOUT = 39;
 
         @Override
         public void handleMessage(Message msg) {
@@ -7888,6 +7931,7 @@ public class WindowManagerService extends IWindowManager.Stub
                     // TODO(multidisplay): Can non-default displays rotate?
                     synchronized (mWindowMap) {
                         Slog.w(TAG, "Window freeze timeout expired.");
+                        mWindowsFreezingScreen = WINDOWS_FREEZING_SCREENS_TIMEOUT;
                         final WindowList windows = getDefaultWindowListLocked();
                         int i = windows.size();
                         while (i > 0) {
@@ -7907,8 +7951,12 @@ public class WindowManagerService extends IWindowManager.Stub
 
                 case APP_TRANSITION_TIMEOUT: {
                     synchronized (mWindowMap) {
-                        if (mAppTransition.isTransitionSet()) {
-                            if (DEBUG_APP_TRANSITIONS) Slog.v(TAG, "*** APP TRANSITION TIMEOUT");
+                        if (mAppTransition.isTransitionSet() || !mOpeningApps.isEmpty()
+                                    || !mClosingApps.isEmpty()) {
+                            if (DEBUG_APP_TRANSITIONS) Slog.v(TAG, "*** APP TRANSITION TIMEOUT."
+                                    + " isTransitionSet()=" + mAppTransition.isTransitionSet()
+                                    + " mOpeningApps.size()=" + mOpeningApps.size()
+                                    + " mClosingApps.size()=" + mClosingApps.size());
                             mAppTransition.setTimeout();
                             performLayoutAndPlaceSurfacesLocked();
                         }
@@ -7955,6 +8003,7 @@ public class WindowManagerService extends IWindowManager.Stub
                 case APP_FREEZE_TIMEOUT: {
                     synchronized (mWindowMap) {
                         Slog.w(TAG, "App freeze timeout expired.");
+                        mWindowsFreezingScreen = WINDOWS_FREEZING_SCREENS_TIMEOUT;
                         final int numStacks = mStackIdToStack.size();
                         for (int stackNdx = 0; stackNdx < numStacks; ++stackNdx) {
                             final TaskStack stack = mStackIdToStack.valueAt(stackNdx);
@@ -8166,6 +8215,17 @@ public class WindowManagerService extends IWindowManager.Stub
                 case RESET_ANR_MESSAGE: {
                     synchronized (mWindowMap) {
                         mLastANRState = null;
+                    }
+                }
+                break;
+                case WALLPAPER_DRAW_PENDING_TIMEOUT: {
+                    synchronized (mWindowMap) {
+                        if (mWallpaperDrawState == WALLPAPER_DRAW_PENDING) {
+                            mWallpaperDrawState = WALLPAPER_DRAW_TIMEOUT;
+                            if (DEBUG_APP_TRANSITIONS || DEBUG_WALLPAPER) Slog.v(TAG,
+                                    "*** WALLPAPER DRAW TIMEOUT");
+                            performLayoutAndPlaceSurfacesLocked();
+                        }
                     }
                 }
                 break;
@@ -9029,13 +9089,13 @@ public class WindowManagerService extends IWindowManager.Stub
         // If the screen is currently frozen or off, then keep
         // it frozen/off until this window draws at its new
         // orientation.
-        if (!okToDisplay()) {
+        if (!okToDisplay() && mWindowsFreezingScreen != WINDOWS_FREEZING_SCREENS_TIMEOUT) {
             if (DEBUG_ORIENTATION) Slog.v(TAG, "Changing surface while display frozen: " + w);
             w.mOrientationChanging = true;
             w.mLastFreezeDuration = 0;
             mInnerFields.mOrientationChangeComplete = false;
-            if (!mWindowsFreezingScreen) {
-                mWindowsFreezingScreen = true;
+            if (mWindowsFreezingScreen == WINDOWS_FREEZING_SCREENS_NONE) {
+                mWindowsFreezingScreen = WINDOWS_FREEZING_SCREENS_ACTIVE;
                 // XXX should probably keep timeout from
                 // when we first froze the display.
                 mH.removeMessages(H.WINDOW_FREEZE_TIMEOUT);
@@ -9059,10 +9119,7 @@ public class WindowManagerService extends IWindowManager.Stub
                 "Checking " + NN + " opening apps (frozen="
                 + mDisplayFrozen + " timeout="
                 + mAppTransition.isTimeout() + ")...");
-        if (!mDisplayFrozen && !mAppTransition.isTimeout()) {
-            // If the display isn't frozen, wait to do anything until
-            // all of the apps are ready.  Otherwise just go because
-            // we'll unfreeze the display when everyone is ready.
+        if (!mAppTransition.isTimeout()) {
             for (i=0; i<NN && goodToGo; i++) {
                 AppWindowToken wtoken = mOpeningApps.valueAt(i);
                 if (DEBUG_APP_TRANSITIONS) Slog.v(TAG,
@@ -9073,6 +9130,39 @@ public class WindowManagerService extends IWindowManager.Stub
                 if (!wtoken.allDrawn && !wtoken.startingDisplayed
                         && !wtoken.startingMoved) {
                     goodToGo = false;
+                }
+            }
+            if (goodToGo && isWallpaperVisible(mWallpaperTarget)) {
+                boolean wallpaperGoodToGo = true;
+                for (int curTokenIndex = mWallpaperTokens.size() - 1;
+                        curTokenIndex >= 0 && wallpaperGoodToGo; curTokenIndex--) {
+                    WindowToken token = mWallpaperTokens.get(curTokenIndex);
+                    for (int curWallpaperIndex = token.windows.size() - 1; curWallpaperIndex >= 0;
+                            curWallpaperIndex--) {
+                        WindowState wallpaper = token.windows.get(curWallpaperIndex);
+                        if (wallpaper.mWallpaperVisible && !wallpaper.isDrawnLw()) {
+                            // We've told this wallpaper to be visible, but it is not drawn yet
+                            wallpaperGoodToGo = false;
+                            if (mWallpaperDrawState != WALLPAPER_DRAW_TIMEOUT) {
+                                // wait for this wallpaper until it is drawn or timeout
+                                goodToGo = false;
+                            }
+                            if (mWallpaperDrawState == WALLPAPER_DRAW_NORMAL) {
+                                mWallpaperDrawState = WALLPAPER_DRAW_PENDING;
+                                mH.removeMessages(H.WALLPAPER_DRAW_PENDING_TIMEOUT);
+                                mH.sendEmptyMessageDelayed(H.WALLPAPER_DRAW_PENDING_TIMEOUT,
+                                        WALLPAPER_DRAW_PENDING_TIMEOUT_DURATION);
+                            }
+                            if (DEBUG_APP_TRANSITIONS || DEBUG_WALLPAPER) Slog.v(TAG,
+                                    "Wallpaper should be visible but has not been drawn yet. " +
+                                    "mWallpaperDrawState=" + mWallpaperDrawState);
+                            break;
+                        }
+                    }
+                }
+                if (wallpaperGoodToGo) {
+                    mWallpaperDrawState = WALLPAPER_DRAW_NORMAL;
+                    mH.removeMessages(H.WALLPAPER_DRAW_PENDING_TIMEOUT);
                 }
             }
         }
@@ -10030,8 +10120,8 @@ public class WindowManagerService extends IWindowManager.Stub
                 "With display frozen, orientationChangeComplete="
                 + mInnerFields.mOrientationChangeComplete);
         if (mInnerFields.mOrientationChangeComplete) {
-            if (mWindowsFreezingScreen) {
-                mWindowsFreezingScreen = false;
+            if (mWindowsFreezingScreen != WINDOWS_FREEZING_SCREENS_NONE) {
+                mWindowsFreezingScreen = WINDOWS_FREEZING_SCREENS_NONE;
                 mLastFinishedFreezeSource = mInnerFields.mLastWindowFreezeSource;
                 mH.removeMessages(H.WINDOW_FREEZE_TIMEOUT);
             }
@@ -10317,7 +10407,7 @@ public class WindowManagerService extends IWindowManager.Stub
         } else {
             mInnerFields.mOrientationChangeComplete = true;
             mInnerFields.mLastWindowFreezeSource = mAnimator.mLastWindowFreezeSource;
-            if (mWindowsFreezingScreen) {
+            if (mWindowsFreezingScreen != WINDOWS_FREEZING_SCREENS_NONE) {
                 doRequest = true;
             }
         }
@@ -10662,13 +10752,15 @@ public class WindowManagerService extends IWindowManager.Stub
             return;
         }
 
-        if (mWaitingForConfig || mAppsFreezingScreen > 0 || mWindowsFreezingScreen
-                || mClientFreezingScreen) {
+        if (mWaitingForConfig || mAppsFreezingScreen > 0
+                || mWindowsFreezingScreen == WINDOWS_FREEZING_SCREENS_ACTIVE
+                || mClientFreezingScreen || !mOpeningApps.isEmpty()) {
             if (DEBUG_ORIENTATION) Slog.d(TAG,
                 "stopFreezingDisplayLocked: Returning mWaitingForConfig=" + mWaitingForConfig
                 + ", mAppsFreezingScreen=" + mAppsFreezingScreen
                 + ", mWindowsFreezingScreen=" + mWindowsFreezingScreen
-                + ", mClientFreezingScreen=" + mClientFreezingScreen);
+                + ", mClientFreezingScreen=" + mClientFreezingScreen
+                + ", mOpeningApps.size()=" + mOpeningApps.size());
             return;
         }
 

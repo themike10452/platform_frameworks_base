@@ -48,6 +48,7 @@ import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -103,7 +104,6 @@ public class VolumePanel extends Handler implements DemoMode {
     private static final int TIMEOUT_DELAY_COLLAPSED = 4500;
     private static final int TIMEOUT_DELAY_SAFETY_WARNING = 5000;
     private static final int TIMEOUT_DELAY_EXPANDED = 10000;
-    private static final int ANIMATION_DURATION = 250;
 
     private static final int MSG_VOLUME_CHANGED = 0;
     private static final int MSG_FREE_RESOURCES = 1;
@@ -594,6 +594,7 @@ public class VolumePanel extends Handler implements DemoMode {
         filter.addAction(AudioManager.RINGER_MODE_CHANGED_ACTION);
         filter.addAction(AudioManager.INTERNAL_RINGER_MODE_CHANGED_ACTION);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
         mContext.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -611,6 +612,15 @@ public class VolumePanel extends Handler implements DemoMode {
 
                 if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                     postDismiss(0);
+                }
+
+                if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(action)) {
+                    if (intent.hasExtra(TelephonyManager.EXTRA_STATE)) {
+                        final String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+                        if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                            postDismiss(0);
+                        }
+                    }
                 }
             }
         }, filter);
@@ -1324,26 +1334,11 @@ public class VolumePanel extends Handler implements DemoMode {
             }
             if (mDialog != null) {
                 mDialog.show();
-                Runnable r = new Runnable() {
-                    public void run() {
-                        mView.setY(-mView.getHeight());
-                        mView.animate().y(0).setDuration(ANIMATION_DURATION)
-                            .withEndAction(new Runnable() {
-                                public void run() {
-                                    if (mCallback != null) {
-                                        mCallback.onVisible(true);
-                                    }
-                                    announceDialogShown();
-                                }
-                        });
-                    }
-                };
-                if (mView.getHeight() == 0) {
-                    new Handler().post(r);
-                } else {
-                    r.run();
-                }
             }
+            if (mCallback != null) {		
+                mCallback.onVisible(true);		
+            }		
+            announceDialogShown();
         }
 
         // Do a little vibrate if applicable (only when going into vibrate mode)
@@ -1591,19 +1586,13 @@ public class VolumePanel extends Handler implements DemoMode {
             case MSG_TIMEOUT: {
                 if (isShowing()) {
                     if (mDialog != null) {
-                        mView.animate().y(-mView.getHeight())
-                                .setDuration(ANIMATION_DURATION)
-                                .withEndAction(new Runnable() {
-                            public void run() {
-                                collapseVolumePanel();
-                                mDialog.dismiss();
-                                clearRemoteStreamController();
-                                mActiveStreamType = -1;
-                                if (mCallback != null) {
-                                    mCallback.onVisible(false);
-                                }
-                            }
-                        });
+                        collapseVolumePanel();
+                        mDialog.dismiss();
+                        clearRemoteStreamController();
+                        mActiveStreamType = -1;
+                        if (mCallback != null) {
+                            mCallback.onVisible(false);
+                        }
                     }
                 }
                 synchronized (sSafetyWarningLock) {
