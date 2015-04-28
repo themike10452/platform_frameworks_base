@@ -42,6 +42,7 @@ import com.android.systemui.qs.tiles.CellularTile;
 import com.android.systemui.qs.tiles.ColorInversionTile;
 import com.android.systemui.qs.tiles.ExpandedDesktopTile;
 import com.android.systemui.qs.tiles.FlashlightTile;
+import com.android.systemui.qs.tiles.HeadsUpTile;
 import com.android.systemui.qs.tiles.HotspotTile;
 import com.android.systemui.qs.tiles.IntentTile;
 import com.android.systemui.qs.tiles.LocationTile;
@@ -294,6 +295,8 @@ public class QSTileHost implements QSTile.Host {
                 return new AdbOverNetworkTile(this);
             case QSConstants.TILE_SCREEN_TIMEOUT:
                 return new ScreenTimeoutTile(this);
+            case QSConstants.TILE_HEADS_UP:
+                return new HeadsUpTile(this);
             default:
                 throw new IllegalArgumentException("Bad tile spec: " + tileSpec);
         }
