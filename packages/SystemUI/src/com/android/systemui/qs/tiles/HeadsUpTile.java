@@ -19,9 +19,8 @@ package com.android.systemui.qs.tiles;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
-import android.provider.Settings.Global;
+import android.provider.Settings.SettingNotFoundException;
 
-import com.android.systemui.qs.GlobalSetting;
 import com.android.systemui.qs.QSTile;
 import com.android.systemui.R;
 
@@ -30,17 +29,8 @@ public class HeadsUpTile extends QSTile<QSTile.BooleanState> {
 
     private static final Intent NOTIFICATION_SETTINGS = new Intent("android.settings.NOTIFICATION_MANAGER");
 
-    private final GlobalSetting mSetting;
-
     public HeadsUpTile(Host host) {
         super(host);
-
-        mSetting = new GlobalSetting(mContext, mHandler, Global.HEADS_UP_NOTIFICATIONS_ENABLED) {
-            @Override
-            protected void handleValueChanged(int value) {
-                handleRefreshState(value);
-            }
-        };
     }
 
     @Override
@@ -60,14 +50,14 @@ public class HeadsUpTile extends QSTile<QSTile.BooleanState> {
     }
 
     private void setEnabled(boolean enabled) {
-        Settings.Global.putInt(mContext.getContentResolver(),
-                Settings.Global.HEADS_UP_NOTIFICATIONS_ENABLED,
+        Settings.System.putInt(mContext.getContentResolver(),
+                Settings.System.HEADS_UP_NOTIFICATION,
                 enabled ? 1 : 0);
     }
 
     @Override
     protected void handleUpdateState(BooleanState state, Object arg) {
-        final int value = arg instanceof Integer ? (Integer)arg : mSetting.getValue();
+        final int value = arg instanceof Integer ? (Integer)arg : getValue();
         final boolean headsUp = value != 0;
         state.value = headsUp;
         state.visible = true;
@@ -95,5 +85,14 @@ public class HeadsUpTile extends QSTile<QSTile.BooleanState> {
     @Override
     public void setListening(boolean listening) {
         // Do nothing
+    }
+
+    private int getValue() {
+	try {
+        return Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.HEADS_UP_NOTIFICATION);
+	} catch (SettingNotFoundException e) {
+	    return 0;
+	}
     }
 }
